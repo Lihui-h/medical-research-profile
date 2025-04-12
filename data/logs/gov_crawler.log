@@ -1,0 +1,51 @@
+2025-04-08 14:31:44,266 - NHCCrawler - INFO - 爬虫初始化完成 | BASE_DIR=E:\medtrust-guardian
+2025-04-08 14:31:44,269 - NHCCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 63-74: ordinal not in range(256)
+2025-04-08 16:39:48,942 - NHCCrawler - INFO - 爬虫初始化完成 | BASE_DIR=E:\medtrust-guardian
+2025-04-08 16:39:48,945 - NHCCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 63-74: ordinal not in range(256)
+2025-04-08 17:40:40,814 - NHCCrawler - ERROR - 代理验证失败: 'latin-1' codec can't encode characters in position 63-74: ordinal not in range(256)
+2025-04-08 17:59:24,752 - NHCCrawler - ERROR - 代理验证失败: 'latin-1' codec can't encode characters in position 63-74: ordinal not in range(256)
+2025-04-09 11:02:22,937 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 11:02:22,937 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 11:02:22,938 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 11:02:22,938 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 12:32:28,282 - DataShGovCrawler - ERROR - 请求失败: Object of type bytes is not JSON serializable
+2025-04-09 12:32:28,283 - DataShGovCrawler - ERROR - 请求失败: Object of type bytes is not JSON serializable
+2025-04-09 12:32:28,283 - DataShGovCrawler - ERROR - 请求失败: Object of type bytes is not JSON serializable
+2025-04-09 12:32:28,284 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 12:56:29,048 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 12:56:29,048 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 12:56:29,109 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 12:56:29,110 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 12:56:29,177 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 12:56:29,178 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 12:56:29,178 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 13:26:40,440 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 13:26:40,441 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 13:26:40,441 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 13:26:40,442 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 13:26:40,442 - DataShGovCrawler - ERROR - 请求失败: requests.api.request() got multiple values for keyword argument 'headers'
+2025-04-09 13:26:40,443 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 13:26:40,443 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 14:05:00,601 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:05:00,602 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 14:05:00,633 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:05:00,634 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 14:05:00,662 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:05:00,664 - DataShGovCrawler - WARNING - 无效响应 | 状态码: 无
+2025-04-09 14:05:00,664 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 14:41:10,079 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:41:10,119 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:41:10,170 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:41:10,171 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 14:43:13,016 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:43:13,062 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:43:13,094 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 14:43:13,094 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 15:00:15,396 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:00:15,458 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:00:15,497 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:00:15,497 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据
+2025-04-09 15:40:38,598 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:40:38,651 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:40:38,682 - DataShGovCrawler - ERROR - 请求失败: 'latin-1' codec can't encode characters in position 38-41: ordinal not in range(256)
+2025-04-09 15:40:38,682 - DataShGovCrawler - INFO - 采集完成 | 共获取 0 条数据

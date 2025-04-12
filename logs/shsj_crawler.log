@@ -1,0 +1,13 @@
+2025-04-03 19:16:33,688 - INFO - === 开始采集松江区医疗机构数据 ===
+2025-04-03 19:17:03,748 - WARNING - 请求失败，第1次重试 - HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=30)
+2025-04-03 19:17:35,310 - WARNING - 请求失败，第2次重试 - HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=30)
+2025-04-03 19:18:08,365 - WARNING - 请求失败，第3次重试 - HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=30)
+2025-04-03 19:18:44,429 - ERROR - 请求最终失败: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=30)
+2025-04-03 19:18:44,430 - WARNING - 获取到空响应，终止采集
+2025-04-03 19:18:44,430 - WARNING - 未获取到有效数据
+2025-04-03 19:18:44,430 - INFO - === 采集任务结束 ===
+2025-04-03 19:56:50,499 - INFO - === 开始采集松江区医疗机构数据 ===
+2025-04-03 19:57:50,637 - WARNING - 响应缺少有效数据节点
+2025-04-03 19:57:50,638 - WARNING - 获取到空响应，终止采集
+2025-04-03 19:57:50,638 - WARNING - 未获取到有效数据
+2025-04-03 19:57:50,638 - INFO - === 采集任务结束 ===

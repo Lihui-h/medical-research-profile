@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <div id="app"></div>
+    <script>
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                let html = '<table>';
+                data.forEach(h => {
+                    html += `<tr>
+                        <td>${h.name}</td>
+                        <td>${h.address}</td>
+                        <td>${h.hos_class}</td>
+                    </tr>`;
+                });
+                document.getElementById('app').innerHTML = html;
+            });
+    </script>
+</body>
+</html>

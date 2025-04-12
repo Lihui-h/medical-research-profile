@@ -1,0 +1,8 @@
+{
+    "max_pages": 3,
+    "rate_limit": {
+        "delay_min": 3,
+        "delay_max": 8
+    },
+    "keywords": ["妇幼", "医院", "评估", "报告", "质量"]
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>医院数据看板</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>上海医疗机构数据（共{{ hospitals|length }}条）</h1>
+    
+    <!-- 统计图表 -->
+    <div id="classChart">{{ class_chart|safe }}</div>
+    
+    <!-- 数据表格 -->
+    <table border="1">
+        <tr>
+            <th>名称</th>
+            <th>地址</th>
+            <th>等级</th>
+        </tr>
+        {% for hospital in hospitals %}
+        <tr>
+            <td>{{ hospital.name }}</td>
+            <td>{{ hospital.address }}</td>
+            <td>{{ hospital.hos_class }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

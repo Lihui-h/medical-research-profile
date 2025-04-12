@@ -1,0 +1,57 @@
+2025-04-12 13:25:04,419 - DataShGovCrawler - INFO - 开始采集区域 20
+2025-04-12 13:25:14,497 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:25:25,561 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:25:37,617 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:25:37,618 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:25:37,618 - DataShGovCrawler - WARNING - 区域 20 采集终止
+2025-04-12 13:25:37,619 - DataShGovCrawler - INFO - 开始采集区域 1
+2025-04-12 13:25:47,683 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:25:58,744 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:10,812 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:10,812 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:10,813 - DataShGovCrawler - WARNING - 区域 1 采集终止
+2025-04-12 13:26:10,813 - DataShGovCrawler - INFO - 开始采集区域 9
+2025-04-12 13:26:20,866 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:31,921 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:43,966 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:43,967 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:26:43,968 - DataShGovCrawler - WARNING - 区域 9 采集终止
+2025-04-12 13:26:43,968 - DataShGovCrawler - INFO - 全部区域采集完成，共获取 0 条数据
+2025-04-12 13:38:44,063 - DataShGovCrawler - INFO - 开始采集区域 20
+2025-04-12 13:38:54,123 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:05,189 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:17,246 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:17,246 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:17,247 - DataShGovCrawler - WARNING - 区域 20 采集终止
+2025-04-12 13:39:17,248 - DataShGovCrawler - INFO - 开始采集区域 1
+2025-04-12 13:39:27,294 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:38,354 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:50,432 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:50,432 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:39:50,433 - DataShGovCrawler - WARNING - 区域 1 采集终止
+2025-04-12 13:39:50,433 - DataShGovCrawler - INFO - 开始采集区域 9
+2025-04-12 13:40:00,485 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:40:11,517 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:40:23,568 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:40:23,568 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:40:23,569 - DataShGovCrawler - WARNING - 区域 9 采集终止
+2025-04-12 13:40:23,570 - DataShGovCrawler - INFO - 全部区域采集完成，共获取 0 条数据
+2025-04-12 13:53:19,320 - DataShGovCrawler - INFO - 开始采集区域 20
+2025-04-12 13:53:29,384 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:53:40,434 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:53:52,477 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:53:52,478 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:53:52,478 - DataShGovCrawler - WARNING - 区域 20 采集终止
+2025-04-12 13:53:52,478 - DataShGovCrawler - INFO - 开始采集区域 1
+2025-04-12 13:54:02,536 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:13,598 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:25,638 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:25,638 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:25,639 - DataShGovCrawler - WARNING - 区域 1 采集终止
+2025-04-12 13:54:25,639 - DataShGovCrawler - INFO - 开始采集区域 9
+2025-04-12 13:54:35,686 - DataShGovCrawler - WARNING - 请求失败（第1次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:46,732 - DataShGovCrawler - WARNING - 请求失败（第2次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:58,817 - DataShGovCrawler - WARNING - 请求失败（第3次重试）: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:58,817 - DataShGovCrawler - ERROR - API请求异常: HTTPSConnectionPool(host='data.sh.gov.cn', port=443): Read timed out. (read timeout=10)
+2025-04-12 13:54:58,818 - DataShGovCrawler - WARNING - 区域 9 采集终止
+2025-04-12 13:54:58,818 - DataShGovCrawler - INFO - 全部区域采集完成，共获取 0 条数据
