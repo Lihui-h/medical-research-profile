@@ -4,9 +4,9 @@ import os
 import pandas as pd
 from collections import Counter
 
-def analyze_feedback(file_path):
+def analyze_feedback(df):
     """基础情感分析（基于关键词）"""
-    df = pd.read_csv(file_path)
+    
     
     # 情感词库（需扩展）
     positive_words = ['满意', '专业', '及时']
