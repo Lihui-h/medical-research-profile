@@ -2,6 +2,10 @@
 import os
 import streamlit as st
 import pandas as pd
+import requests
+from io import BytesIO
+from PIL import ImageFont
+from wordcloud import WordCloud
 from src.dashboard.core import DataDashboard
 from src.dashboard.visualizations import (
     plot_sentiment_trend,
@@ -14,6 +18,19 @@ st.set_page_config(
     page_icon="🔬",
     layout="wide"
 )
+
+def get_font_path():
+    """优先尝试TTF，失败后尝试OTF"""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    font_paths = [
+        os.path.join(base_dir, "assets", "fonts", "SmileySans-Oblique.ttf"),
+        os.path.join(base_dir, "assets", "fonts", "SmileySans-Oblique.otf")
+    ]
+    for path in font_paths:
+        if os.path.exists(path):
+            return path
+    return None
+
 
 def main():
     # 初始化驾驶舱
@@ -49,9 +66,17 @@ def main():
             st.error(f"网络图文件未生成，预期路径：{html_path}")
     
     # === 新增：医院词云 ===
-    from wordcloud import WordCloud
+    font_path = get_font_path()
+    if not font_path:
+        st.error("⚠️ 字体文件未找到，请检查assets/fonts目录")
+        return
+
+    # 指定字体路径
     hospital_text = " ".join(df["hospital"].tolist())
+    
+    # 生成词云（带中文字体）
     wordcloud = WordCloud(
+        font_path=font_path,        # 关键参数
         width=800, height=400, 
         background_color="#1a1a1a",  # 暗色背景
         colormap="YlGnBu"
