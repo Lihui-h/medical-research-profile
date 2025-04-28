@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>数据驾驶舱 - ContagioScope</title>
+    <script>
+        if (!localStorage.getItem('isLoggedIn')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body>
+    <!-- 正确引用Streamlit服务地址 -->
+    <iframe 
+        src="https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/"  
+        style="width:100%; height:100vh; border:none;"
+    ></iframe>
+</body>
+</html>

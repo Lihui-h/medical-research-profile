@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>ContagioScope - 登录</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .login-box {
+            background: rgba(19, 35, 47, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+        body {
+            background: linear-gradient(45deg, #1a1a1a, #2c3e50);
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-items-center">
+            <div class="col-md-4 login-box p-4 text-white">
+                <h2 class="text-center mb-4">🔭 ContagioScope</h2>
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <select class="form-select bg-dark text-white" id="userType">
+                            <option value="personal">个人用户</option>
+                            <option value="organization">组织机构</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" class="form-control bg-dark text-white" 
+                               id="username" placeholder="账号">
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control bg-dark text-white" 
+                               id="password" placeholder="密码">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">进入数据驾驶舱</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // 硬编码测试账号（正式环境需移除）
+            const validAccounts = {
+                'admin@contagioscope': 'ContagioScope2024',
+                'test_org': 'Org@2024'
+            };
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (validAccounts[username] === password) {
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('认证失败！');
+            }
+        });
+    </script>
+</body>
+</html>
