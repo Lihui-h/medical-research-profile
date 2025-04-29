@@ -7,12 +7,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
         :root {
-            --neon-blue: #00f3ff;
-            --deep-space: #0a192f;
+            --neon-primary: #ffffff; /* 霓虹白 */
+            --deep-space: #000000;   /* 纯黑背景 */
+            --cyber-accent: #666666; /* 机械灰 */
         }
 
         body {
             background: var(--deep-space);
+            color: #ffffff; /* 文字颜色 */
             overflow-x: hidden;
         }
 
@@ -37,7 +39,7 @@
 
         .cyber-title {
             font-family: 'Arial Black', sans-serif;
-            text-shadow: 0 0 10px var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-primary);
             position: relative;
         }
 
@@ -48,7 +50,7 @@
             left: 0;
             width: 100%;
             height: 3px;
-            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
             animation: scanline 2s infinite;
         }
 
@@ -58,9 +60,20 @@
         }
 
         .login-modal {
-            background: rgba(10, 25, 47, 0.95);
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue);
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--cyber-accent);
+            box-shadow: 0 0 20px var(--neon-primary);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--cyber-accent);
+            color: var(--neon-primary);
+        }
+
+        /* 调整星空颜色 */
+        .star {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 5px #fff;
         }
     </style>
 </head>
@@ -207,5 +220,6 @@
             new bootstrap.Modal(document.getElementById('loginModal')).show();
         }
     </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -15,6 +15,7 @@ from requests.adapters import HTTPAdapter
 from pymongo import MongoClient, UpdateOne
 from dotenv import load_dotenv
 from src.utils.api_client import OxylabsScraper  # 新增导入
+from src.utils.keyword_generator import KeywordGenerator  # 新增导入
 
 # 配置日志格式
 logging.basicConfig(
@@ -29,6 +30,8 @@ class TiebaSpider:
     #初始化方法
     def __init__(self, kw='浙江省中医院', max_page=2, delay=10):
         # 初始化参数
+        self.keyword_tool = KeywordGenerator()  # 新增
+        self.final_keywords = self.keyword_tool.get_encoded_keywords()  # 获取编码后的关键词
         self.logger = logging.getLogger(self.__class__.__name__)
         self.keyword = kw
         self.api_client = OxylabsScraper()
@@ -52,40 +55,39 @@ class TiebaSpider:
 
     #核心方法
     def run(self):
-        """主运行逻辑（纯API模式）"""
-        logger.info(f"🚀 开始爬取【{self.keyword}吧】...")
-        
-        # 通过 API 获取列表页
-        list_url = f"{self.base_url}/f/search/res?ie=utf-8&qw={self.keyword}"
-        api_response = self.api_client.fetch_page(list_url)
+        """主运行逻辑（整合搜索URL生成）"""
+        logger.info("🚀 启动贴吧数据采集引擎...")
 
-        # 新增响应验证
-        if not isinstance(api_response, dict) or "results" not in api_response:
-            logger.error(f"API响应格式异常: {api_response}")
-            return
-        if not api_response["results"]:
-            logger.error("列表页获取失败")
-            return
-        self.logger.debug(f"API响应摘要: {str(api_response)[:200]}")  # 打印前200字符
+        try:
+            search_urls = self.generate_search_urls()  # 调用新增的URL生成方法
 
-        if not api_response.get("results"):
-            self.logger.error("列表页获取失败")
-            return
-        
-        # 解析帖子列表
-        html_content = api_response["results"][0]["content"]
+            for idx, url in enumerate(search_urls, 1):
+                logger.info(f"▷ 正在处理第 {idx}/{len(search_urls)} 个搜索条件 | URL={url[:50]}...")
 
-        # 新增：保存原始HTML用于分析
-        with open("raw_html.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
-        self.parse_list_page(html_content)
+                # 调用API获取页面
+                api_response = self.api_client.fetch_page(url)
 
-        # 获取帖子详情
-        self.crawl_details()
+                if not api_response.get("results"):
+                    logger.warning(f"❗ 第 {idx} 个搜索条件无结果")
+                    continue
 
-        # 存储数据
-        if self.data:
-            self._save_data()
+                # 解析并存储数据
+                self.parse_list_page(api_response["results"][0]["content"])
+                self.crawl_details()
+
+                # 动态延迟（3-7秒）
+                time.sleep(random.uniform(3, 7))  
+
+            # 存储最终数据
+            if self.data:
+                self._save_data()
+                logger.info(f"✅ 采集完成 | 总计获取 {len(self.data)} 条有效数据")
+
+        except Exception as e:
+            logger.error(f"🔥 主流程异常终止: {str(e)}", exc_info=True)
+
+        finally:
+            self.close()
     
     def _run_static_mode(self):
         """静态解析模式专用流程"""
@@ -273,6 +275,11 @@ class TiebaSpider:
         for term, replacement in sensitive_terms.items():
             item['content'] = item['content'].replace(term, replacement)
         return item
+
+    def generate_search_urls(self):
+        """生成复合搜索条件URL"""
+        base_url = "https://tieba.baidu.com/f/search/res?ie=utf-8&qw={keyword}"
+        return [base_url.format(keyword=kw) for kw in self.final_keywords]  # 直接使用编码后的关键词
 
     #资源管理
     def close(self):
