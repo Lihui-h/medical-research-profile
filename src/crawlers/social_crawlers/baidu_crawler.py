@@ -194,24 +194,39 @@ class TiebaSpider:
 
     #存储方法
     def _save_data(self):
-        """统一存储入口"""
+        """统一存储入口（集成医疗内容过滤）"""
+        from src.utils.data_filter import MedicalContentFilter  # 局部导入避免循环依赖
+
         if not self.data:
             self.logger.warning("⚠️ 暂无数据可存储")
             return
+        
         try:
-            # MongoDB存储
-            mongo_result = self.save_to_mongodb()
-            # CSV备份
-            csv_result = self.save_to_csv()
+            # === 新增过滤逻辑 ===
+            filter = MedicalContentFilter()
+            filtered_data = [item for item in self.data if filter.is_medical_related(item)]
 
+            if not filtered_data:
+                self.logger.warning("🛑 过滤后无有效医疗数据")
+                return
+            
+            # === 存储过滤后数据 ===
+            mongo_result = self.save_to_mongodb(filtered_data)  # 修改传入参数
+            csv_result = self.save_to_csv(filtered_data)         # 修改传入参数
+
+            # === 更新日志信息 ===
             if mongo_result and csv_result:
-                logger.info("💾 存储成功 | MongoDB: %d条 | CSV: %d条", 
-                            len(self.data), len(self.data))
+                self.logger.info(
+                    "💾 存储成功 | 原始数据: %d条 → 有效数据: %d条 (过滤率: %.1f%%)", 
+                    len(self.data), 
+                    len(filtered_data),
+                    (1 - len(filtered_data)/len(self.data)) * 100
+                )
             else:
-                logger.warning("⚠️ 存储结果异常 | MongoDB: %s | CSV: %s", 
-                               mongo_result, csv_result)
+                self.logger.warning("⚠️ 存储结果异常 | MongoDB: %s | CSV: %s", mongo_result, csv_result)
+                
         except Exception as e:
-            logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
+            self.logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
 
     def save_to_mongodb(self):
         """数据存储（含去重机制）"""
