@@ -2,42 +2,130 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>ContagioScope - 登录</title>
+    <title>ContagioScope - 开源社会传播智能观测平台</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
     <style>
-        .login-box {
-            background: rgba(19, 35, 47, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+        :root {
+            --neon-primary: #ffffff; /* 霓虹白 */
+            --deep-space: #000000;   /* 纯黑背景 */
+            --cyber-accent: #666666; /* 机械灰 */
         }
+
         body {
-            background: linear-gradient(45deg, #1a1a1a, #2c3e50);
-            height: 100vh;
+            background: var(--deep-space);
+            color: #ffffff; /* 文字颜色 */
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .cyber-title {
+            font-family: 'Arial Black', sans-serif;
+            text-shadow: 0 0 10px var(--neon-primary);
+            position: relative;
+        }
+
+        .cyber-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
+            animation: scanline 2s infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .login-modal {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--cyber-accent);
+            box-shadow: 0 0 20px var(--neon-primary);
+        }
+
+        .btn-outline-primary {
+            border-color: var(--cyber-accent);
+            color: var(--neon-primary);
+        }
+
+        /* 调整星空颜色 */
+        .star {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 5px #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container h-100">
-        <div class="row h-100 justify-content-center align-items-center">
-            <div class="col-md-4 login-box p-4 text-white">
-                <h2 class="text-center mb-4">🔭 ContagioScope</h2>
-                <form id="loginForm">
-                    <div class="mb-3">
-                        <select class="form-select bg-dark text-white" id="userType">
-                            <option value="personal">个人用户</option>
-                            <option value="organization">组织机构</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control bg-dark text-white" 
-                               id="username" placeholder="账号">
-                    </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control bg-dark text-white" 
-                               id="password" placeholder="密码">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">进入数据驾驶舱</button>
-                </form>
+    <!-- 动态星空背景 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 主标题 -->
+    <div class="container text-center mt-5">
+        <h1 class="cyber-title text-white animate__animated animate__fadeInDown">
+            <span style="color: var(--neon-blue)">ContagioScope</span><br>
+            <small class="text-muted">开源社会传播智能观测平台</small>
+        </h1>
+    </div>
+
+    <!-- 动力学模型可视化容器 -->
+    <div id="dynamics-canvas" style="height: 400px; margin: 2rem auto;"></div>
+
+    <!-- 登录按钮 -->
+    <div class="text-center mt-5">
+        <button class="btn btn-outline-primary btn-lg" 
+                style="border-color: var(--neon-blue); color: var(--neon-blue)"
+                onclick="showLogin()">
+            ▷ 启动观测系统
+        </button>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content login-modal text-white">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">🛸 身份认证</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <select class="form-select bg-dark text-white" id="userType">
+                                <option value="personal">个人用户</option>
+                                <option value="organization">组织机构</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="username" placeholder="账号">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control bg-dark text-white" id="password" placeholder="密码">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">进入数据驾驶舱</button>
+                        <!-- 原有登录表单内容 -->
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -62,5 +150,76 @@
             }
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // ===== 星空背景生成 =====
+        function initStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 1.5 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // ===== 动力学模型可视化 =====
+        function initDynamics() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(document.getElementById('dynamics-canvas').offsetWidth, 400);
+            document.getElementById('dynamics-canvas').appendChild(renderer.domElement);
+
+            // 创建微分方程动态轨迹
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            const timeStep = 0.02;
+            
+            // 洛伦兹吸引子方程示例
+            let x = 0.1, y = 0, z = 0;
+            for (let i = 0; i < 5000; i++) {
+                const dx = 10 * (y - x);
+                const dy = x * (28 - z) - y;
+                const dz = x * y - 8/3 * z;
+                
+                x += dx * timeStep;
+                y += dy * timeStep;
+                z += dz * timeStep;
+                
+                vertices.push(x, y, z);
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+            const line = new THREE.Line(geometry, material);
+            scene.add(line);
+
+            camera.position.z = 50;
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                line.rotation.x += 0.001;
+                line.rotation.y += 0.001;
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // ===== 初始化 =====
+        window.onload = function() {
+            initStars();
+            initDynamics();
+        }
+
+        function showLogin() {
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
+        }
+    </script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

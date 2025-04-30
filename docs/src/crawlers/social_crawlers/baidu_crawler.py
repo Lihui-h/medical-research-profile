@@ -15,6 +15,7 @@ from requests.adapters import HTTPAdapter
 from pymongo import MongoClient, UpdateOne
 from dotenv import load_dotenv
 from src.utils.api_client import OxylabsScraper  # 新增导入
+from src.utils.keyword_generator import KeywordGenerator  # 新增导入
 
 # 配置日志格式
 logging.basicConfig(
@@ -29,6 +30,8 @@ class TiebaSpider:
     #初始化方法
     def __init__(self, kw='浙江省中医院', max_page=2, delay=10):
         # 初始化参数
+        self.keyword_tool = KeywordGenerator()  # 新增
+        self.final_keywords = self.keyword_tool.get_encoded_keywords()  # 获取编码后的关键词
         self.logger = logging.getLogger(self.__class__.__name__)
         self.keyword = kw
         self.api_client = OxylabsScraper()
@@ -52,40 +55,39 @@ class TiebaSpider:
 
     #核心方法
     def run(self):
-        """主运行逻辑（纯API模式）"""
-        logger.info(f"🚀 开始爬取【{self.keyword}吧】...")
-        
-        # 通过 API 获取列表页
-        list_url = f"{self.base_url}/f/search/res?ie=utf-8&qw={self.keyword}"
-        api_response = self.api_client.fetch_page(list_url)
+        """主运行逻辑（整合搜索URL生成）"""
+        logger.info("🚀 启动贴吧数据采集引擎...")
 
-        # 新增响应验证
-        if not isinstance(api_response, dict) or "results" not in api_response:
-            logger.error(f"API响应格式异常: {api_response}")
-            return
-        if not api_response["results"]:
-            logger.error("列表页获取失败")
-            return
-        self.logger.debug(f"API响应摘要: {str(api_response)[:200]}")  # 打印前200字符
+        try:
+            search_urls = self.generate_search_urls()  # 调用新增的URL生成方法
 
-        if not api_response.get("results"):
-            self.logger.error("列表页获取失败")
-            return
-        
-        # 解析帖子列表
-        html_content = api_response["results"][0]["content"]
+            for idx, url in enumerate(search_urls, 1):
+                logger.info(f"▷ 正在处理第 {idx}/{len(search_urls)} 个搜索条件 | URL={url[:50]}...")
 
-        # 新增：保存原始HTML用于分析
-        with open("raw_html.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
-        self.parse_list_page(html_content)
+                # 调用API获取页面
+                api_response = self.api_client.fetch_page(url)
 
-        # 获取帖子详情
-        self.crawl_details()
+                if not api_response.get("results"):
+                    logger.warning(f"❗ 第 {idx} 个搜索条件无结果")
+                    continue
 
-        # 存储数据
-        if self.data:
-            self._save_data()
+                # 解析并存储数据
+                self.parse_list_page(api_response["results"][0]["content"])
+                self.crawl_details()
+
+                # 动态延迟（3-7秒）
+                time.sleep(random.uniform(3, 7))  
+
+            # 存储最终数据
+            if self.data:
+                self._save_data()
+                logger.info(f"✅ 采集完成 | 总计获取 {len(self.data)} 条有效数据")
+
+        except Exception as e:
+            logger.error(f"🔥 主流程异常终止: {str(e)}", exc_info=True)
+
+        finally:
+            self.close()
     
     def _run_static_mode(self):
         """静态解析模式专用流程"""
@@ -192,24 +194,39 @@ class TiebaSpider:
 
     #存储方法
     def _save_data(self):
-        """统一存储入口"""
+        """统一存储入口（集成医疗内容过滤）"""
+        from src.utils.data_filter import MedicalContentFilter  # 局部导入避免循环依赖
+
         if not self.data:
             self.logger.warning("⚠️ 暂无数据可存储")
             return
+        
         try:
-            # MongoDB存储
-            mongo_result = self.save_to_mongodb()
-            # CSV备份
-            csv_result = self.save_to_csv()
+            # === 新增过滤逻辑 ===
+            filter = MedicalContentFilter()
+            filtered_data = [item for item in self.data if filter.is_medical_related(item)]
 
+            if not filtered_data:
+                self.logger.warning("🛑 过滤后无有效医疗数据")
+                return
+            
+            # === 存储过滤后数据 ===
+            mongo_result = self.save_to_mongodb(filtered_data)  # 修改传入参数
+            csv_result = self.save_to_csv(filtered_data)         # 修改传入参数
+
+            # === 更新日志信息 ===
             if mongo_result and csv_result:
-                logger.info("💾 存储成功 | MongoDB: %d条 | CSV: %d条", 
-                            len(self.data), len(self.data))
+                self.logger.info(
+                    "💾 存储成功 | 原始数据: %d条 → 有效数据: %d条 (过滤率: %.1f%%)", 
+                    len(self.data), 
+                    len(filtered_data),
+                    (1 - len(filtered_data)/len(self.data)) * 100
+                )
             else:
-                logger.warning("⚠️ 存储结果异常 | MongoDB: %s | CSV: %s", 
-                               mongo_result, csv_result)
+                self.logger.warning("⚠️ 存储结果异常 | MongoDB: %s | CSV: %s", mongo_result, csv_result)
+                
         except Exception as e:
-            logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
+            self.logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
 
     def save_to_mongodb(self):
         """数据存储（含去重机制）"""
@@ -273,6 +290,11 @@ class TiebaSpider:
         for term, replacement in sensitive_terms.items():
             item['content'] = item['content'].replace(term, replacement)
         return item
+
+    def generate_search_urls(self):
+        """生成复合搜索条件URL"""
+        base_url = "https://tieba.baidu.com/f/search/res?ie=utf-8&qw={keyword}"
+        return [base_url.format(keyword=kw) for kw in self.final_keywords]  # 直接使用编码后的关键词
 
     #资源管理
     def close(self):
