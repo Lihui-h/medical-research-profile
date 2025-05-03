@@ -1,0 +1,89 @@
+/* 登录模态框专用样式 */
+#orgLoginModal.login-modal {
+  /* 覆盖Bootstrap默认隐藏 
+  display: block !important;
+   消除淡入动画残留 
+  opacity: 1 !important;*/
+  background: rgba(0,0,0,0.7);
+}
+
+#orgLoginModal .modal-dialog {
+  /* 精确控制尺寸 */
+  width: 380px;
+  margin: 1.75rem auto;
+  position: relative;
+  top: 25vh; /* 垂直居中偏移 */
+}
+
+#orgLoginModal .modal-content {
+  background: #1a1a1a;
+  border: 2px solid #4CAF50;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(76,175,80,0.3);
+  overflow: hidden; /* 防止内容溢出圆角 */
+}
+
+#orgLoginModal .modal-header {
+  border-bottom: none;
+  padding: 25px 30px 15px;
+  position: relative;
+}
+
+#orgLoginModal .modal-title {
+  color: #4CAF50;
+  font-size: 1.4em;
+  letter-spacing: 1px;
+}
+
+#orgLoginModal .close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  color: #fff;
+  opacity: 0.8;
+  text-shadow: none;
+}
+
+#orgLoginModal .form-group {
+  margin-bottom: 1.2rem;
+}
+
+#orgLoginModal .form-control {
+  background: #333;
+  border: 1px solid #4CAF50;
+  color: #fff;
+  height: 45px;
+  border-radius: 6px;
+  padding: 0 15px;
+  transition: all 0.3s;
+}
+
+#orgLoginModal .form-control:focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 12px rgba(33,150,243,0.3);
+}
+
+#orgLoginModal .btn-cyano {
+  background: #4CAF50;
+  color: #fff;
+  height: 45px;
+  border-radius: 6px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-top: 1rem;
+  transition: all 0.3s;
+}
+
+#orgLoginModal .btn-cyano:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+#loginError {
+  background: #B71C1C;
+  color: #fff;
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 4px;
+  border: 1px solid #FF5252;
+}

@@ -62,7 +62,8 @@ class TiebaSpider:
             search_urls = self.generate_search_urls()  # 调用新增的URL生成方法
 
             for idx, url in enumerate(search_urls, 1):
-                logger.info(f"▷ 正在处理第 {idx}/{len(search_urls)} 个搜索条件 | URL={url[:50]}...")
+                self.data = []  # 🔴 新增：清空上一轮数据
+                self.logger.info(f"▷ 正在处理第 {idx}/{len(search_urls)} 个搜索条件 | URL={url[:50]}...")
 
                 # 调用API获取页面
                 api_response = self.api_client.fetch_page(url)

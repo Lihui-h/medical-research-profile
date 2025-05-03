@@ -1,225 +1,446 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>ContagioScope - 开源社会传播智能观测平台</title>
-    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --neon-primary: #ffffff; /* 霓虹白 */
-            --deep-space: #000000;   /* 纯黑背景 */
-            --cyber-accent: #666666; /* 机械灰 */
-        }
+<html lang="en">
+	<head>
+		<meta charset="utf-8"></meta>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+		<meta name="description" content="ContagioScope: 开源社会传播智能观测平台"></meta>
+		<meta name="author" content="LhHong"></meta>
+		<meta name="referrer" content="always"></meta>
+		<!-- 网页不缓存，刷新后重新从服务器读取 -->
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"></meta>
+		<meta http-equiv="Pragma" content="no-cache"></meta>
+		<meta http-equiv="Expires" content="0"></meta>
+		<title>ContagioScope</title>
+		<link rel="shortcut icon" type="image/png" href="img/b.png"/>
+		<!-- Bootstrap core CSS -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom Google Web Font -->
+		<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet">
+		<!-- Custom CSS-->
+		<link href="css/general.css" rel="stylesheet">
+		<!-- Owl-Carousel -->
+		<link href="css/custom.css" rel="stylesheet">
+		<link href="css/owl.carousel.css" rel="stylesheet">
+		<link href="css/owl.theme.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<!-- Magnific Popup core CSS file -->
+		<link href="css/magnific-popup.css" rel="stylesheet" />
+		<!--补丁-->
+		<link href="css/buding.css" rel="stylesheet">
+		<link href="css/test.css" rel="stylesheet" />
+		<!-- 账号登陆 -->
+		<link href="css/login.css" rel="stylesheet" />
+		<!-- jquery -->
+		<script src="js/jquery-1.10.2.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/owl.carousel.js"></script>
+		<script src="js/script.js"></script>
+		<!-- Modernizr /-->
+		<script src="js/modernizr-2.6.2.min.js"></script>
+		<script src="js/onclick.js"></script>
+		<!-- StikyMenu -->
+		<script src="js/stickUp.min.js"></script>
+		<script src="js/jq-navbar.js"></script>
+		<!-- Smoothscroll -->
+		<script src="js/jquery.corner.js"></script>
+		<script src="js/classie.js"></script>
+		<script src="js/uiMorphingButton_inflow.js"></script>
+		<!-- Magnific Popup core JS file -->
+		<script src="js/jquery.magnific-popup.js"></script>
+		<!-- js背景 -->
+		<script src="js/particles.js"></script>
+		<script src="js/bg-particles.js"></script>
 
-        body {
-            background: var(--deep-space);
-            color: #ffffff; /* 文字颜色 */
-            overflow-x: hidden;
-        }
+		<style>
+			/* 定义动画关键帧 */
+			@keyframes fadeInUp {
+				from { opacity: 0; transform: translateY(50px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+			/* 初始状态 */
+			.abcen {
+				opacity: 1;
+				animation-fill-mode: forwards;
+			}
+			/* 滚动触发动画 */
+			.abcen.animate {
+				animation: fadeInUp 1s ease-out;
+			}
+			/* 按钮特殊动画 */
+			.imgcircle {
+				transform: translateY(30px);
+				transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+				display: block; /* 新增：确保a标签正确显示 */
+			}
+			.imgcircle.animate {
+				opacity: 1;
+				transform: translateY(0);
+				animation: bounce 2s infinite;
+			}
+			@keyframes bounce {
+				0%, 100% { transform: translateY(0); }
+				50% { transform: translateY(-20px); }
+			}
+		</style>
 
-        .stars {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
+	</head>
+	<body id="home"><!--属性在styles.css里-->
+		<!-- 加载动画 -->
+		<div id="preloader">
+			<div id="status"></div>
+		</div>
+		<!-- 首页HOME -->
+		<canvas class="background"></canvas>
+		<!-- 背景颜色在background在test.css里，线和其他属性在Particles.js里 -->
+		<div class="overbg">
+			<div class="col-xs-12 text-center abcen1">
+				<h1 class="h2_home fadeIn white-a" data-wow-delay="0.4s">ContagioScope</h1>
+				<h3 class="h3_home fadeIn white-a" data-wow-delay="0.6s">开源社会传播智能观测平台</h3>
+				<ul class="list-inline intro-social-buttons">
+					<li><a href="" class="btn  btn-lg mybutton_cyano fadeIn" data-wow-delay="0.8s"><span class="network-name">个人</span></a>
+					</li>
+					<li>
+						<a href="#" class="btn  btn-lg mybutton_standard swing fadeIn" data-wow-delay="1.2s" data-toggle="modal" data-target="#orgLoginModal">
+							<span class="network-name">组织/公司</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="col-xs-12 text-center abcen">
+				<div class="button_down ">
+					<a class="imgcircle animate" href="#whatis" aria-label="向下滑动至简介">
+						<img class="img_scroll" src="img/icon/circle.png" alt="">
+					</a>
+				</div>
+			</div>
+		</div>
+		<!-- 组织登录模态框 -->
+		<div class="modal fade login-modal" id="orgLoginModal" tabindex="-1" role="dialog" aria-labelledby="orgLoginModalLabel" aria-hidden="true" data-focus="false">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 class="modal-title text-center">组织/公司登录</h4>
+					</div>
+					<div class="modal-body">
+						<form id="loginForm">
+							<div class="form-group">
+								<input type="text" class="form-control" id="username" placeholder="机构代码" autocomplete="username" required>
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control" id="password" placeholder="安全密钥" autocomplete="current-password" required>
+							</div>
+							<button type="submit" class="btn btn-cyano btn-block">进入数据舱</button>
+							<div id="loginError" class="text-danger text-center mt-3" style="display:none;"></div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 导航栏 -->
+		<nav class="navbar-default" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#home">HOME</a>
+				</div>
+				<div class="navigation">
+					<ul class="nav navbar-nav menu">
+						<li><a href="#whatis">简介</a></li>
+						<li class="dropdown">
+							<a href="#project" class="dropbtn">科研项目</a>
+							<div class="dropdown-content block-small">
+								<a href="#szqp">成瘾模型</a><!--后面href再修改-->
+								<a href="#sljn">传播模型</a>
+								<!--注释了先<a href="#jcsj"></a>-->
+								<!--<a href="#lcsw"></a>-->
+							</div>
+						</li>
+						<!--注释了先<li><a href="#equipment">实验设备</a></li>-->
+						<!--注释了先<li><a href="#entrance">门禁和监控</a></li>-->
+						<li><a href="#contact">联系我们</a></li>
+					</ul>
+					<div class="menuToggle" data-toggle="modal" data-target="#orgLoginModal"></div>
+				</div>
+			</div>
+		</nav>
+		<!-- 简介 -->
+		<div id="whatis" class="content-section-b" style="border-top: 0">
+			<div class="container">
+				<div class="col-md-6 col-md-offset-3 text-center wrap_title">
+					<h2>简介</h2>
+					<p class="lead" style="margin-top:0">INTRODUCTION</p>
+                    <!--这个地方插入具体简介内容，暂时考虑以下内容：-->
+                    <!--我的最初目的是受到一个研究吸烟的成瘾性模型的稳定性分析的论文的启发，该论文并未解释广告或者说对于吸烟的信息传播是否作为模型的另一个因素。-->
+                    <!--另外，很多传染病表面上看是流行终止，目前很多传染病模型都是基于流行终止为目的，但有没有可能，只是在特定群里里的终止，或者说，从系统的角度看来，各类疾病是否从一个系统转到另一个系统，比如说从亚洲传播转到非洲传播，或者从人类传播转到动物传播。
+                    目前公司在申请，目前暂定的名称是杭州流形暗面科技有限公司，这是基于未来从模型的可视化角度考虑的微分流形，-->
+				</div>
+                <!--注意下面的row的块跟上面的区别，可能位于下一层，目前我暂时注释掉这个结构-->
+				<!--<div class="row">
+					<div class="col-md-4 whatis-grid text-center">
+						<img class="rotate" src="img/icon/folder.svg" alt="Generic placeholder image" data-toggle="modal" data-target="#myModal1">
+						<h3>部门</h3>
+						<p class="lead"></p>
+						<div class="bootstrap-pop-up">
+						</div>
+					</div>
+					我用&&表示注释内注释& myModal1 &&这个是部门的弹出框，注意这个结构以及对应的id命名myModal1&
+					<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header" style="float:inherit">
+									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">&data-dismiss="modal"表示关闭modal&
+									<span id="">部门</span>
+									<div style="clear:both"></div>
+								</div>
+								<div class="modal-body">
+									<img src="" style="width:100%;height:auto">&src里是图片链接&
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 whatis-grid text-center">
+						<img src="img/成员.jpg" alt="Generic placeholder image" width="100" height="100" class="rotate" data-toggle="modal" data-target="#myModal2">
+						<h3>成员</h3>
+						<p class="lead"></p>
+						<div class="bootstrap-pop-up">
+						</div>
+					</div>
+					& myModal2 &
+					<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header" style="float:inherit">
+									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">
+									<span id="">成员</span>
+									<div style="clear:both"></div>
+								</div>
+								<div class="modal-body" align="left">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 whatis-grid text-center">
+						<img src="img/制度.png" alt="Generic placeholder image" width="100" height="100" class="rotate" data-toggle="modal" data-target="#myModal3">
+						<h3>制度</h3>
+						<p class="lead">各类材料下载</p>
+						<div class="bootstrap-pop-up">
+						</div>
+					</div>
+					& myModal3 &
+					<div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header" style="float:inherit">
+									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">
+									<span id="">制度</span>
+									<div style="clear:both"></div>
+								</div>
+								<div class="modal-body">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>-->
+				<div class="row tworow"><!--这个块是干嘛的忘了，以后测试-->
+				</div>
+			</div>
+		</div>
+		<!-- 科研项目 -->
+		<div id="project"></div>
+		<!-- 成瘾模型 -->
+		<div id ="szqp" class="content-section-a">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-6 fadeInLeftBig">
+						<div id="owl-demo-2" class="owl-carousel"><!--owl设置在script.js里面-->
+							<div class="item">
+								<img class="img-responsive img-rounded" src="" alt="">
+							</div>
+							<div class="item">
+								<img class="img-responsive img-rounded" src="" alt="">
+							</div>
+						</div>
+					</div>
+					<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
+						<h3 class="section-heading">成瘾模型</h3>
+						<div class="sub-title lead3"><br></div>
+						<p class="lead"></p>
+						<a data-toggle="modal" data-target="#myModal102" class="btn btn-embossed btn-primary" role="button">View Details</a>
+						<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
+					</div>
+				</div>
+			</div>
+			<!-- myModal102 -->
+			<div class="modal fade" id="myModal102" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog" style="height:auto">
+					<div class="modal-content">
+						<div class="modal-header" style="float:inherit">
+							<img src="img/返回.png" alt="退出模态框" id="img001" data-dismiss="modal" width="20" height="20">
+							<span id="span001">成瘾模型</span><!--每个id必须唯一-->
+							<div style="clear:both"></div>
+						</div>
+						<div class="modal-body">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 传播模型 -->
+		<div id="sljn" class="content-section-c">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-6 fadeInLeftBig">
+						<div id="owl-demo-1" class="owl-carousel">
+							<div class="item">
+								<img class="img-responsive img-rounded" src="" alt="">
+							</div>
+						</div>
+					</div>
+					<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
+						<h3 class="section-heading white">传播模型</h3>
+						<div class="sub-title lead3"><br></div>
+						<p class="lead"></p>
+						<a data-toggle="modal" data-target="#myModal103" class="btn btn-embossed btn-primary" role="button">View Details</a> 
+						<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
+					</div>
+				</div>
+			</div>
+			<!-- myModal103 -->
+			<div class="modal fade" id="myModal103" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog" style="height:auto">
+					<div class="modal-content">
+						<div class="modal-header" style="float:inherit">
+							<img src="img/返回.png" alt="退出模态框" id="img002" data-dismiss="modal" width="20" height="20">
+							<span id="span002">传播模型</span>
+							<div style="clear:both"></div>
+						</div>
+						<div class="modal-body">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Contact -->
+		<div id="contact" class="content-section-a"><!--如果要添加背景图片，在buding.css的bgadd属性里修改，当然别忘了在这里添加bgadd-->
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6 col-md-offset-3 text-center wrap_title flat-non">
+						<h2>Contact Us</h2>
+						<p class="lead" style="margin-top:0"></p>
+					</div>
+					<hr class="featurette-divider hidden-lg"/>
+					<div class="apk">
+						<div class="apk001">
+							<a href="">
+								<div class="apk-hidden">
+									<img src="" alt="APP二维码"/>
+								</div>
+								<span class="icon-apk">
+									<img src="img/下载.svg" alt=""/>
+								</span>
+								<p class="lead">下载APP</p>
+							</a>
+						</div>
+						<div class="apk001">
+							<div class="apk-email">
+								<p>联系邮箱：lhhong@zjsru.edu.cn</p>
+							</div>
+							<span class="icon-email">
+								<img src="img/邮箱.svg" alt=""/>
+							</span>
+							<p class="lead">邮箱</p>
+						</div>
+						<div class="apk001">
+							<div class="apk-hidden">
+								<p>联系QQ：</p>
+							</div>
+							<span class="icon-qq">
+								<img src="img/QQ.svg" alt=""/>
+							</span>
+							<p class="lead">QQ</p>
+						</div>
+						<div class="apk001">
+							<div class="apk-hidden">
+								<p>联系微信：</p>
+							</div>
+							<span class="icon-weichat">
+								<img src="img/微信.svg" alt=""/>
+							</span>
+							<p class="lead">微信</p>
+						</div>
+					</div>
+					<div class="col-md-5 col-md-push-1 address flat-non inline-block">
+						<address>
+							<h3>Office Location</h3>
+							<p class="lead">
+								浙江省杭州市
+								<br>余杭区
+							</p>
+						</address>
+						<div class="lianjie">
+							<h3>友情链接</h3>
+							<p class="lead">
+								<!--后面再加<a href=""></a>
+								<br /><a href=""></a>-->
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- 尾部 -->
+		<footer>
+			<div class="container center">
+				<!-- 以后放备案信息？ -->
+				<i class="font-size2">
+				</i>
+			</div>
+		</footer>
+		<!-- 测试表单提交是否会被js劫持，如果发生劫持，启用下面被注释掉的部分 -->
+		<!--<div id="testArea" style="position:fixed; top:20px; right:20px; z-index:9999; background:white; padding:20px; border:2px solid red;">
+			<h3 style="color:red;">测试登录表单元件</h3>
+			<form id="testForm">
+				<input type="text" placeholder="测试账号" id="testUser">
+				<input type="password" placeholder="测试密码" id="testPass">
+				<button type="submit">测试提交</button>
+			</form>
+			<div id="testError" style="color:red; display:none;"></div>
+		</div>
+		<script>
+			document.getElementById('testForm').addEventListener('submit', function(e) {
+  				e.preventDefault();
 
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 1.5s infinite;
-        }
+				const user = document.getElementById('testUser').value.trim();
+				const pass = document.getElementById('testPass').value.trim();
+				const errorBox = document.getElementById('testError');
+  
+				errorBox.style.display = 'none';
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
+				if (!user || !pass) {
+				    errorBox.textContent = '请输入完整信息';
+				    errorBox.style.display = 'block';
+				    return;
+				}
 
-        .cyber-title {
-            font-family: 'Arial Black', sans-serif;
-            text-shadow: 0 0 10px var(--neon-primary);
-            position: relative;
-        }
-
-        .cyber-title::after {
-            content: "";
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
-            animation: scanline 2s infinite;
-        }
-
-        @keyframes scanline {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .login-modal {
-            background: rgba(0, 0, 0, 0.95);
-            border: 1px solid var(--cyber-accent);
-            box-shadow: 0 0 20px var(--neon-primary);
-        }
-
-        .btn-outline-primary {
-            border-color: var(--cyber-accent);
-            color: var(--neon-primary);
-        }
-
-        /* 调整星空颜色 */
-        .star {
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 5px #fff;
-        }
-    </style>
-</head>
-<body>
-    <!-- 动态星空背景 -->
-    <div class="stars" id="stars"></div>
-
-    <!-- 主标题 -->
-    <div class="container text-center mt-5">
-        <h1 class="cyber-title text-white animate__animated animate__fadeInDown">
-            <span style="color: var(--neon-blue)">ContagioScope</span><br>
-            <small class="text-muted">开源社会传播智能观测平台</small>
-        </h1>
-    </div>
-
-    <!-- 动力学模型可视化容器 -->
-    <div id="dynamics-canvas" style="height: 400px; margin: 2rem auto;"></div>
-
-    <!-- 登录按钮 -->
-    <div class="text-center mt-5">
-        <button class="btn btn-outline-primary btn-lg" 
-                style="border-color: var(--neon-blue); color: var(--neon-blue)"
-                onclick="showLogin()">
-            ▷ 启动观测系统
-        </button>
-    </div>
-
-    <!-- 登录模态框 -->
-    <div class="modal fade" id="loginModal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content login-modal text-white">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">🛸 身份认证</h5>
-                </div>
-                <div class="modal-body">
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <select class="form-select bg-dark text-white" id="userType">
-                                <option value="personal">个人用户</option>
-                                <option value="organization">组织机构</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" class="form-control bg-dark text-white" id="username" placeholder="账号">
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control bg-dark text-white" id="password" placeholder="密码">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">进入数据驾驶舱</button>
-                        <!-- 原有登录表单内容 -->
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // 硬编码测试账号（正式环境需移除）
-            const validAccounts = {
-                'admin@contagioscope': 'ContagioScope2024',
-                'test_org': 'Org@2024'
-            };
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (validAccounts[username] === password) {
-                localStorage.setItem('isLoggedIn', 'true');
-                window.location.href = 'dashboard.html';
-            } else {
-                alert('认证失败！');
-            }
-        });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        // ===== 星空背景生成 =====
-        function initStars() {
-            const container = document.getElementById('stars');
-            for (let i = 0; i < 200; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = Math.random() * 3 + 'px';
-                star.style.height = star.style.width;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 1.5 + 's';
-                container.appendChild(star);
-            }
-        }
-
-        // ===== 动力学模型可视化 =====
-        function initDynamics() {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ alpha: true });
-            renderer.setSize(document.getElementById('dynamics-canvas').offsetWidth, 400);
-            document.getElementById('dynamics-canvas').appendChild(renderer.domElement);
-
-            // 创建微分方程动态轨迹
-            const geometry = new THREE.BufferGeometry();
-            const vertices = [];
-            const timeStep = 0.02;
-            
-            // 洛伦兹吸引子方程示例
-            let x = 0.1, y = 0, z = 0;
-            for (let i = 0; i < 5000; i++) {
-                const dx = 10 * (y - x);
-                const dy = x * (28 - z) - y;
-                const dz = x * y - 8/3 * z;
-                
-                x += dx * timeStep;
-                y += dy * timeStep;
-                z += dz * timeStep;
-                
-                vertices.push(x, y, z);
-            }
-
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-            const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-            const line = new THREE.Line(geometry, material);
-            scene.add(line);
-
-            camera.position.z = 50;
-            
-            function animate() {
-                requestAnimationFrame(animate);
-                line.rotation.x += 0.001;
-                line.rotation.y += 0.001;
-                renderer.render(scene, camera);
-            }
-            animate();
-        }
-
-        // ===== 初始化 =====
-        window.onload = function() {
-            initStars();
-            initDynamics();
-        }
-
-        function showLogin() {
-            new bootstrap.Modal(document.getElementById('loginModal')).show();
-        }
-    </script>
-    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-</body>
+				if (user === 'test' && pass === '1234') {
+				    // 新增跳转逻辑
+				    window.location.href = 'test-success.html'; // 创建一个简单的成功页
+				} else {
+				    errorBox.textContent = '❌ 账号或密码错误';
+				    errorBox.style.color = 'red';
+				    errorBox.style.display = 'block';
+				}
+			});
+		</script>-->
+		<!-- 添加滚动检测脚本 -->
+		<script src="js/loaded.js"></script>
+		<!-- 登录验证 -->
+		<script src="js/login.js"></script>
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				console.log('[DEBUG] DOM已加载完成');
+				// 确保所有JS初始化代码在此事件内执行
+			});
+		</script>
+	</body>
 </html>

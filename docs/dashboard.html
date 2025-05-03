@@ -3,16 +3,47 @@
 <head>
     <title>数据驾驶舱 - ContagioScope</title>
     <script>
-        if (!localStorage.getItem('isLoggedIn')) {
-            window.location.href = 'index.html';
-        }
+        // 统一鉴权验证
+        (function() {
+            // 开发环境调试模式
+            const DEBUG_MODE = true;
+            
+            // 验证逻辑
+            const authData = JSON.parse(localStorage.getItem('orgAuth') || '{}');
+            // 新增路径兼容性处理
+            const dashboardPath = window.location.href.includes('localhost') 
+                ? 'dashboard.html'
+                : 'https://lihui-h.github.io/medical-research-profile/dashboard.html';
+            window.location.replace(dashboardPath);
+
+            if (!isValid) {
+                DEBUG_MODE && console.log('[Auth Debug] 失败原因:', {
+                    tokenExists: !!authData.token,
+                    credentialMatch: authData.token ? atob(authData.token) === 'zjszyy:Contagio@2024' : false,
+                    timeValid: authData.timestamp ? Date.now() - authData.timestamp < 3600000 : false
+                });
+                localStorage.removeItem('orgAuth');
+                window.location.replace('index.html');
+            }
+        })();
     </script>
 </head>
 <body>
-    <!-- 正确引用Streamlit服务地址 -->
-    <iframe 
-        src="https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/"  
-        style="width:100%; height:100vh; border:none;"
-    ></iframe>
+    <iframe src="https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/" 
+            style="width:100%; height:100vh; border:none;"></iframe>
+    
+    <!-- 安全退出按钮 -->
+    <button onclick="logout()" 
+            style="position:fixed; top:10px; right:10px; z-index:9999"
+            class="btn btn-danger btn-sm">
+        安全退出
+    </button>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('orgAuth');
+            window.location.href = 'index.html';
+        }
+    </script>
 </body>
 </html>
