@@ -229,14 +229,15 @@ class TiebaSpider:
         except Exception as e:
             self.logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
 
-    def save_to_mongodb(self):
+    def save_to_mongodb(self, data):
         """数据存储（含去重机制）"""
-        if not self.data:
-            return
+        if not data:
+            logger.warning("⚠️ 无数据可存储")
+            return False
             
         try:
             # 数据清洗与匿名化
-            processed_data = [self._anonymize_data(item.copy()) for item in self.data]
+            processed_data = [self._anonymize_data(item.copy()) for item in data]
             
             # 批量写入（自动去重）
             operations = [
@@ -247,11 +248,13 @@ class TiebaSpider:
                 ) for item in processed_data
             ]
             result = self.collection.bulk_write(operations, ordered=False)
-            logger.info(f"📦 数据写入完成 | 新增: {result.upserted_count} 更新: {result.modified_count}")
+            logger.info(f"📦 数据写入完成 | 新增: {result.upserted_count} 更新: {result.modified_count} 总量: {len(data)}条")
+            return True
         except Exception as e:
             logger.error(f"数据存储失败: {str(e)}")
+            return False
 
-    def save_to_csv(self):
+    def save_to_csv(self, data):
         """本地备份（仅保存必要字段）"""
         save_dir = Path("data/raw/tieba")
         save_dir.mkdir(parents=True, exist_ok=True)
@@ -260,14 +263,14 @@ class TiebaSpider:
         try:
             # 自动获取所有字段（防止遗漏）
             all_fields = set()
-            for item in self.data:
+            for item in data:
                 all_fields.update(item.keys())
 
             # 写入文件
             with open(file_path, 'w', newline='', encoding='utf-8-sig') as f:
                 writer = csv.DictWriter(f, fieldnames=list(all_fields))
                 writer.writeheader()
-                writer.writerows(self.data)
+                writer.writerows(data)
 
                 
             self.logger.info(f"💾 本地备份成功: {file_path}")

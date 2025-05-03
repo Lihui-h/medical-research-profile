@@ -8,7 +8,20 @@ from src.utils.anonymizer import anonymize_text  # 复用已有工具
 
 class DataDashboard:
     def __init__(self):
-        self.client = MongoClient(os.getenv("MONGODB_URI"))
+        # 从环境变量读取，而非硬编码
+        mongodb_uri = os.getenv("MONGODB_URI")
+        print(f"DEBUG - MONGODB_URI: {mongodb_uri}")  # 输出到 Streamlit 日志
+        if not mongodb_uri:
+            raise ValueError("MONGODB_URI 未设置")
+        
+        try:
+            self.client = MongoClient(mongodb_uri, serverSelectionTimeoutMS=5000)
+            self.client.admin.command('ping')  # 主动触发连接测试
+            print("DEBUG - 成功连接到 MongoDB Atlas")
+        except Exception as e:
+            print(f"DEBUG - 连接失败: {str(e)}")
+            raise
+        
         self.db = self.client["social_data"]
     
     def load_hospital_data(self, limit=100):
