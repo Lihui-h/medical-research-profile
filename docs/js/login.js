@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
       // 调用 Streamlit 后端 API
-      const apiUrl = `https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/?api=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+      const apiUrl = `https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app/?api=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
       const response = await fetch(apiUrl
         , {
           mode: 'cors', // 允许跨域请求

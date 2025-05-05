@@ -5,6 +5,8 @@ import time
 import json
 from pymongo import MongoClient
 import pandas as pd
+from flask import Flask, request, Response
+from flask_cors import CORS
 from src.dashboard.core import DataDashboard
 from src.dashboard.visualizations import plot_sentiment_trend
 
