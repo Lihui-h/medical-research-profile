@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('loginForm');
   const errorBox = document.getElementById('loginError');
 
-  // 阻止表单默认提交
   loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -15,26 +14,27 @@ document.addEventListener('DOMContentLoaded', function() {
     errorBox.style.display = 'none';
 
     try {
-      // 发送登录请求
-      const response = await fetch('https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      // 调用 Streamlit 后端 API
+      const apiUrl = `https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/?api=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP 错误 ${response.status}`);
+      }
 
       const result = await response.json();
 
       if (result.success) {
-        // 存储认证状态（示例使用 sessionStorage）
-        sessionStorage.setItem('authToken', 'valid');
-        // 跳转到仪表盘
+        // 存储 Token 到 localStorage
+        localStorage.setItem('authToken', result.token);
+        // 跳转到数据看板
         window.location.href = result.redirect;
       } else {
-        showError(result.error || '登录失败');
+        showError(result.error || '未知错误');
       }
     } catch (error) {
-      showError('网络错误，请检查连接');
-      console.error('API请求失败:', error);
+      showError(`请求失败: ${error.message}`);
+      console.error('API 错误:', error);
     }
   });
 
@@ -43,6 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
     errorBox.style.display = 'block';
     setTimeout(() => {
       errorBox.style.display = 'none';
-    }, 3000);
+    }, 5000);
   }
 });
