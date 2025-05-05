@@ -3,81 +3,102 @@ document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('loginForm');
   const errorBox = document.getElementById('loginError');
 
-  function showError(message) {
+  // ==================== 工具函数 ====================
+  const showError = (message) => {
     errorBox.textContent = message;
     errorBox.style.display = 'block';
     setTimeout(() => {
       errorBox.style.display = 'none';
     }, 5000);
-  }
+  };
 
-  loginForm.addEventListener('submit', function(e) {
+  // ==================== 核心登录逻辑 ====================
+  loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    // 清空旧状态
+    errorBox.style.display = 'none';
+    loginForm.querySelector('button[type="submit"]').disabled = true;
+
+    // 获取输入值
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
-    // 清空错误提示
-    errorBox.textContent = '';
-    errorBox.style.display = 'none';
-
-    // 基本输入验证
+    // 输入验证
     if (!username || !password) {
       showError('请输入完整的机构代码和安全密钥');
+      loginForm.querySelector('button[type="submit"]').disabled = false;
       return;
     }
 
-    // 创建隐藏的 iframe 用于跨域通信
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.id = 'authFrame';
-    
-    // 构建 Streamlit API URL
-    const streamlitAppUrl = 'https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app'; // 替换为你的实际地址
-    const apiUrl = `${streamlitAppUrl}/?api=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    iframe.src = apiUrl;
+    try {
+      // 构建 API URL（注意新路径参数）
+      const apiUrl = new URL('https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app');
+      apiUrl.searchParams.append('path', 'api/login');
+      apiUrl.searchParams.append('username', username);
+      apiUrl.searchParams.append('password', password);
 
-    // 消息监听器
-    function handleMessage(event) {
-      // 验证消息来源
-      if (event.origin !== streamlitAppUrl) return;
-
-      try {
-        const data = event.data;
-        
-        if (data.success) {
-          // 存储 token 并跳转
-          localStorage.setItem('authToken', data.token);
-          window.location.href = data.redirect;
-        } else {
-          showError(data.error || '认证失败');
+      // 发送请求
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        headers: {
+          'Accept': 'application/json'
         }
-      } catch (error) {
-        showError('响应解析失败');
-        console.error('Message handler error:', error);
-      } finally {
-        // 清理资源
-        window.removeEventListener('message', handleMessage);
-        document.body.removeChild(iframe);
+      });
+
+      // 处理 HTTP 错误
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
+
+      // 解析 JSON
+      const result = await response.json();
+
+      // 处理业务逻辑错误
+      if (!result.success) {
+        throw new Error(result.error || '未知错误');
+      }
+
+      // 存储 token 并跳转
+      localStorage.setItem('authToken', result.token);
+      window.location.href = result.redirect;
+
+    } catch (error) {
+      console.error('登录失败:', error);
+      showError(`登录失败: ${error.message.replace('HTTP 401: ', '')}`);
+
+      // 特殊处理 Streamlit 认证拦截
+      if (error.message.includes('Redirecting to /-/login')) {
+        showError('系统检测到非常规访问，请直接访问数据驾驶舱完成首次认证');
+        setTimeout(() => {
+          window.location.href = 'https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app';
+        }, 3000);
+      }
+    } finally {
+      loginForm.querySelector('button[type="submit"]').disabled = false;
     }
-
-    // 添加事件监听
-    window.addEventListener('message', handleMessage);
-
-    // 启动流程
-    document.body.appendChild(iframe);
-
-    // 超时处理
-    const timeout = setTimeout(() => {
-      showError('服务器响应超时，请稍后重试');
-      window.removeEventListener('message', handleMessage);
-      document.body.removeChild(iframe);
-    }, 15000);
-
-    // 清理超时计时器
-    iframe.onload = function() {
-      clearTimeout(timeout);
-    };
   });
+
+  // ==================== Token 自动续期 ====================
+  const checkAuthStatus = () => {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      fetch('https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app/?path=api/check_token', {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) localStorage.removeItem('authToken');
+      })
+      .catch(() => localStorage.removeItem('authToken'));
+    }
+  };
+
+  // 每 5 分钟检查一次 token
+  setInterval(checkAuthStatus, 300000);
+  checkAuthStatus();
 });

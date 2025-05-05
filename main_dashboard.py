@@ -31,12 +31,12 @@ def validate_credentials(username: str, password: str) -> bool:
     )
 
 # ==================== API 处理模块 ====================
-def handle_api_request():
+def handle_request():
     """处理外部 API 请求"""
     params = st.query_params
 
-    # 仅在 API 模式时触发
-    if "api" in params and params["api"] == "login":
+    # 仅处理 /api/login 路径的请求
+    if params.get("path") == ["/api/login"]:
         # ==== 获取参数 ====
         username = params.get("username", [""])[0]
         password = params.get("password", [""])[0]
@@ -57,18 +57,20 @@ def handle_api_request():
             }
             status_code = 401
 
-        # ==== 注入 CORS 头 ====
-        st.markdown(
-            f"""
-            <script>
-                window.parent.postMessage({json.dumps(response_data)}, "https://lihui-h.github.io");
-            </script>
-            """,
-            unsafe_allow_html=True
+        # 直接返回原始 HTTP 响应
+        from flask import Response
+        return Response(
+            json.dumps(response_data),
+            status=status_code,
+            mimetype="application/json",
+            headers={
+                "Access-Control-Allow-Origin": "https://lihui-h.github.io",
+                "Access-Control-Allow-Methods": "GET, POST"
+            }
         )
-
-        # ==== 终止执行 ====
-        sys.exit()  # 终止请求
+        
+    # 正常渲染页面
+    return None
 
 # ==================== 数据看板模块 ====================
 def show_dashboard():
@@ -95,27 +97,34 @@ def show_dashboard():
     # 更多可视化组件...
 
 # ==================== 主流程控制 ====================
-# 优先处理 API 请求
-handle_api_request()
-
-# 会话状态初始化
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
+if __name__ == "__main__":
+    # 处理 API 请求
+    response = handle_request()
+    if response:
+        # 绕过 Streamlit 中间件直接返回响应
+        from streamlit.web.server.websocket_headers import _get_websocket_headers
+        _get_websocket_headers()._headers = response.headers
+        st.write(response.get_data())
+        st.stop()
+    else:
+        # 会话状态初始化
+        if "logged_in" not in st.session_state:
+            st.session_state.logged_in = False
     
-# 登录状态检查
-if not st.session_state.logged_in:
-    st.title("机构认证")
+        # 登录状态检查
+        if not st.session_state.logged_in:
+            st.title("机构认证")
         
-    with st.form("login_form"):
-        username = st.text_input("机构代码", key="username")
-        password = st.text_input("安全密钥", type="password", key="password")
-        submitted = st.form_submit_button("授权登录")
+            with st.form("login_form"):
+                username = st.text_input("机构代码", key="username")
+                password = st.text_input("安全密钥", type="password", key="password")
+                submitted = st.form_submit_button("授权登录")
             
-        if submitted:
-            if validate_credentials(username, password):
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.error("⚠️ 认证失败：请检查机构代码和安全密钥")
-else:
-    show_dashboard()
+                if submitted:
+                    if validate_credentials(username, password):
+                        st.session_state.logged_in = True
+                        st.rerun()
+                    else:
+                        st.error("⚠️ 认证失败：请检查机构代码和安全密钥")
+        else:
+            show_dashboard()
