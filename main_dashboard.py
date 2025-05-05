@@ -2,6 +2,7 @@
 import streamlit as st
 import hashlib
 import time
+import json
 from pymongo import MongoClient
 import pandas as pd
 from src.dashboard.core import DataDashboard
@@ -27,19 +28,38 @@ def handle_api_request():
     params = st.experimental_get_query_params()
     
     if params.get("api") == ["login"]:
+        # 强制设置CORS头
+        from flask import Response
+        headers = {
+            "Access-Control-Allow-Origin": "https://lihui-h.github.io",
+            "Access-Control-Allow-Methods": "GET, POST",
+            "Access-Control-Allow-Headers": "Content-Type"
+        }
+
         # 从 URL 参数获取凭证
         username = params.get("username", [""])[0]
         password = params.get("password", [""])[0]
         
         # 返回 JSON 响应
         if validate_credentials(username, password):
-            st.json({
+            response_data = {
                 "success": True,
                 "token": generate_hash(f"{username}{password}{int(time.time())}"),
                 "redirect": st.secrets.get("DASHBOARD_URL", "/")
-            })
+            }
+            return Response(
+                json.dumps(response_data),
+                headers=headers,
+                mimetype="application/json"
+            )
         else:
-            st.json({"success": False, "error": "认证失败"})
+            response_data = {"success": False, "error": "认证失败"}
+            return Response(
+                json.dumps(response_data),
+                headers=headers,
+                mimetype="application/json",
+                status=401
+            )
         
         # 终止 Streamlit 后续渲染
         st.stop() 

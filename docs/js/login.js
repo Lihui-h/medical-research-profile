@@ -16,7 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
       // 调用 Streamlit 后端 API
       const apiUrl = `https://medical-research-profile-ybuh3unpzstrb9hp9lrk6s.streamlit.app/?api=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-      const response = await fetch(apiUrl);
+      const response = await fetch(apiUrl
+        , {
+          mode: 'cors', // 允许跨域请求
+          credentials: 'include', // 允许携带 cookie 
+        }
+      );
       
       if (!response.ok) {
         throw new Error(`HTTP 错误 ${response.status}`);
