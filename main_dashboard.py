@@ -2,13 +2,19 @@
 import streamlit as st
 import hashlib
 import time
+import sys
 import json
 from pymongo import MongoClient
 import pandas as pd
-from flask import Flask, request, Response
-from flask_cors import CORS
 from src.dashboard.core import DataDashboard
 from src.dashboard.visualizations import plot_sentiment_trend
+
+# ==================== 页面配置（必须最前） ====================
+st.set_page_config(
+        page_title="ContagioScope 数据驾驶舱",
+        page_icon="🔬",
+        layout="wide"
+)
 
 # ==================== 安全验证模块 ====================
 def generate_hash(input_str: str) -> str:
@@ -27,54 +33,46 @@ def validate_credentials(username: str, password: str) -> bool:
 # ==================== API 处理模块 ====================
 def handle_api_request():
     """处理外部 API 请求"""
-    params = st.experimental_get_query_params()
-    
-    if params.get("api") == ["login"]:
-        # 强制设置CORS头
-        from flask import Response
-        headers = {
-            "Access-Control-Allow-Origin": "https://lihui-h.github.io",
-            "Access-Control-Allow-Methods": "GET, POST",
-            "Access-Control-Allow-Headers": "Content-Type"
-        }
+    params = st.query_params
 
-        # 从 URL 参数获取凭证
+    # 仅在 API 模式时触发
+    if "api" in params and params["api"] == "login":
+        # ==== 获取参数 ====
         username = params.get("username", [""])[0]
         password = params.get("password", [""])[0]
-        
-        # 返回 JSON 响应
+
+        # ==== 构造响应 ====
+        response_data = {}
         if validate_credentials(username, password):
             response_data = {
                 "success": True,
                 "token": generate_hash(f"{username}{password}{int(time.time())}"),
-                "redirect": st.secrets.get("DASHBOARD_URL", "/")
+                "redirect": st.secrets.get("REDIRECT_URL", "/")
             }
-            return Response(
-                json.dumps(response_data),
-                headers=headers,
-                mimetype="application/json"
-            )
+            status_code = 200
         else:
-            response_data = {"success": False, "error": "认证失败"}
-            return Response(
-                json.dumps(response_data),
-                headers=headers,
-                mimetype="application/json",
-                status=401
-            )
-        
-        # 终止 Streamlit 后续渲染
-        st.stop() 
+            response_data = {
+                "success": False,
+                "error": "认证失败"
+            }
+            status_code = 401
+
+        # ==== 注入 CORS 头 ====
+        st.markdown(
+            f"""
+            <script>
+                window.parent.postMessage({json.dumps(response_data)}, "https://lihui-h.github.io");
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # ==== 终止执行 ====
+        sys.exit()  # 终止请求
 
 # ==================== 数据看板模块 ====================
 def show_dashboard():
     """显示数据看板"""
-    st.set_page_config(
-        page_title="ContagioScope 数据驾驶舱",
-        page_icon="🔬",
-        layout="wide"
-    )
-    
     # 初始化数据连接
     dashboard = DataDashboard(st.secrets["MONGODB_URI"])
     
@@ -97,28 +95,27 @@ def show_dashboard():
     # 更多可视化组件...
 
 # ==================== 主流程控制 ====================
-if __name__ == "__main__":
-    # 优先处理 API 请求
-    handle_api_request()
+# 优先处理 API 请求
+handle_api_request()
+
+# 会话状态初始化
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
     
-    # 会话状态初始化
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-    
-    # 登录状态检查
-    if not st.session_state.logged_in:
-        st.title("机构认证")
+# 登录状态检查
+if not st.session_state.logged_in:
+    st.title("机构认证")
         
-        with st.form("login_form"):
-            username = st.text_input("机构代码", key="username")
-            password = st.text_input("安全密钥", type="password", key="password")
-            submitted = st.form_submit_button("授权登录")
+    with st.form("login_form"):
+        username = st.text_input("机构代码", key="username")
+        password = st.text_input("安全密钥", type="password", key="password")
+        submitted = st.form_submit_button("授权登录")
             
-            if submitted:
-                if validate_credentials(username, password):
-                    st.session_state.logged_in = True
-                    st.rerun()
-                else:
-                    st.error("⚠️ 认证失败：请检查机构代码和安全密钥")
-    else:
-        show_dashboard()
+        if submitted:
+            if validate_credentials(username, password):
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("⚠️ 认证失败：请检查机构代码和安全密钥")
+else:
+    show_dashboard()
