@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
       // 构建 API URL（注意新路径参数）
-      const apiUrl = new URL('https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app');
+      const apiUrl = new URL('https://flask-api-git-main-lihui-hongs-projects.vercel.app/api/login');
       apiUrl.searchParams.append('path', 'api/login');
       apiUrl.searchParams.append('username', username);
       apiUrl.searchParams.append('password', password);
