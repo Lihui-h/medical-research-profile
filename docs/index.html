@@ -7,9 +7,9 @@
 		<meta name="author" content="LhHong"></meta>
 		<meta name="referrer" content="always"></meta>
 		<!-- 网页不缓存，刷新后重新从服务器读取 -->
-		<!--<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"></meta>
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"></meta>
 		<meta http-equiv="Pragma" content="no-cache"></meta>
-		<meta http-equiv="Expires" content="0"></meta>-->
+		<meta http-equiv="Expires" content="0"></meta>
 		<title>ContagioScope</title>
 		<link rel="shortcut icon" type="image/png" href="img/b.png"/>
 		<!-- Bootstrap core CSS -->
@@ -81,18 +81,6 @@
 				0%, 100% { transform: translateY(0); }
 				50% { transform: translateY(-20px); }
 			}
-			.alert-danger {
-				color: #721c24;
-				background-color: #f8d7da;
-				border-color: #f5c6cb;
-				padding: 10px;
-				margin-top: 10px;
-				border-radius: 4px;
-			}
-			.direct-link {
-				margin-top: 15px;
-				text-align: center;
-			}
 		</style>
 
 	</head>
@@ -142,15 +130,8 @@
 							<div class="form-group">
 								<input type="password" class="form-control" id="password" placeholder="安全密钥" autocomplete="current-password" required>
 							</div>
-							<div id="loginError" class="alert alert-danger mt-3" style="display:none;"></div>
 							<button type="submit" class="btn btn-cyano btn-block">进入数据舱</button>
-							<!-- 新增直连入口 -->
-							<p class="direct-link">
-								首次使用请
-								<a href="https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app" target="_blank">
-									前往数据源认证
-								</a>
-							</p>
+							<div id="loginError" class="text-danger text-center mt-3" style="display:none;"></div>
 						</form>
 					</div>
 				</div>
