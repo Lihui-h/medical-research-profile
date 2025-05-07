@@ -2,84 +2,42 @@
 import os
 import json
 import streamlit as st
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 from pymongo import MongoClient
 import pandas as pd
+from urllib.parse import urlparse
 from wordcloud import WordCloud
+from streamlit_login_auth_ui_zh.widgets import __login__
 from src.dashboard.core import DataDashboard
-from src.dashboard.visualizations import (
-    plot_sentiment_trend,
-    draw_network_graph
-)
+from src.dashboard.visualizations import plot_sentiment_trend, draw_network_graph
 
-# ==================== Flask API 服务配置 ====================
-flask_app = Flask(__name__)
-CORS(
-    flask_app, resources={
-        r"/api/*": {
-            "origins": "https://lihui-h.github.io",  # 允许的前端域名
-            "methods": ["GET", "POST", "OPTIONS"],  # 允许的方法
-            "allow_headers": ["Content-Type", "Authorization"],  # 允许的头部
-        }
-    }
-)
+# ==================== 登录系统配置 ====================
+def init_login():
+    """初始化登录系统"""
+    return __login__(
+        auth_token="courier_auth_token",  # 暂时使用模拟token
+        company_name="流形暗面",
+        width=300,
+        height=400,
+        logout_button_name="退出登录",
+        hide_menu_bool=True,
+        hide_footer_bool=True,
+        lottie_url='https://assets2.lottiefiles.com/packages/lf20_ktwnwv5m.json'
+    )
 
-@flask_app.route('/api/login', methods=['POST', 'OPTIONS'])
-def handle_login():
-    """处理登录请求"""
-    if request.method == 'OPTIONS':
-        return jsonify({
-            'status': 'preflight'
-        }), 200
-    try:
-        data = request.get_json()
-        username = data.get('username', '').strip()
-        password = data.get('password', '').strip()
-
-        # 从 Streamlit Secrets 获取凭证
-        valid_user = st.secrets.get("HOSPITAL_USER", "zjszyy")
-        valid_pass = st.secrets.get("HOSPITAL_PASS", "Contagio@2024")
-
-        if username == valid_user and password == valid_pass:
-            return jsonify({
-                "success": True,
-                "redirect": "/dashboard"  # Streamlit 路由
-            })
-        else:
-            return jsonify({
-                "success": False,
-                "error": "机构代码或安全密钥错误"
-            }), 401
-
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": f"服务器错误: {str(e)}"
-        }), 500
-
-# ==================== Streamlit 仪表盘配置 ====================
-def get_font_path():
-    """获取中文字体路径"""
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    for ext in [".ttf", ".otf"]:
-        path = os.path.join(base_dir, "assets", "fonts", f"SmileySans-Oblique{ext}")
-        if os.path.exists(path):
-            return path
-    return None
-
+# ==================== 主仪表盘 ====================
 def main_dashboard():
-    """主仪表盘界面"""
+    """主分析仪表盘"""
     st.set_page_config(
         page_title="ContagioScope 数据驾驶舱",
         page_icon="🔬",
         layout="wide"
     )
     
-    # 初始化数据驾驶舱
-    dashboard = DataDashboard(st.secrets["MONGODB_URI"])
+    # 初始化数据引擎
+    dashboard = DataDashboard(os.getenv("MONGODB_URI"))
     
     st.title("🛸 ContagioScope 数据驾驶舱")
+    st.markdown("### 当前用户: " + st.session_state.user_email)
     
     # 数据加载
     with st.spinner("🚀 正在加载数据..."):
@@ -116,26 +74,74 @@ def main_dashboard():
         ).generate(hospital_text)
         st.image(wordcloud.to_array(), caption="医院提及频率词云")
 
-# ==================== 集成 Flask 和 Streamlit ====================
+# ==================== 工具函数 ====================
+def get_font_path():
+    """获取中文字体路径"""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    for ext in [".ttf", ".otf"]:
+        path = os.path.join(base_dir, "assets", "fonts", f"SmileySans-Oblique{ext}")
+        if os.path.exists(path):
+            return path
+    return None
+
+def handle_user_registration(email, username, password):
+    """处理用户注册到MongoDB"""
+    client = MongoClient(os.getenv("MONGODB_URI"))
+    db = client["user_management"]
+    
+    # 检查用户是否存在
+    if db.users.find_one({"$or": [{"email": email}, {"username": username}]}):
+        return False
+    
+    # 插入新用户
+    db.users.insert_one({
+        "email": email,
+        "username": username,
+        "password": password,  # 实际应存储哈希值
+        "registration_date": pd.Timestamp.now(),
+        "access_level": "basic"
+    })
+    return True
+
+def validate_referral():
+    """验证跳转来源"""
+    allowed_referrers = [
+        "lihui-h.github.io",
+        "localhost:8501",
+        "medical-research-profile.streamlit.app"
+    ]
+
+    query_params = st.experimental_get_query_params()
+    if "page" not in query_params:
+        st.markdown(f"""
+        <script>
+            window.location.href = "https://lihui-h.github.io/medical-research-profile/";
+        </script>
+        """, unsafe_allow_html=True)
+        st.stop()
+
+    if query_params.get("page")[0] == "login":
+        st.session_state.login_redirect = True
+
+# ==================== 主程序入口 ====================
 if __name__ == '__main__':
-    import streamlit.runtime.scriptrunner as scriptrunner
+    # 验证跳转来源
+    validate_referral()
+
+    # 初始化登录系统
+    login_ui = init_login()
     
-    # 挂载 Flask 到 Streamlit 服务器
-    from streamlit.web.server import Server
-    server = Server.get_current()
-    server._flask_app.wsgi_app = flask_app.wsgi_app
+    # 构建登录界面(添加跳转参数)
+    user_logged_in = login_ui.build_login_ui(
+        preauthorized_domains=["zjsru.edu.cn", "contagioscope.ai"],
+        registration_callback=handle_user_registration,
+        extra_params={
+            "referrer": "github_pages",
+            "utm_source": "medical_research_protal"
+        }
+    )
     
-    # 设置 Streamlit 路由
-    @flask_app.route('/ContagioScope_DataDashboard')
-    def streamlit_route():
-        """处理仪表盘路由"""
-        scriptrunner.run_script(__file__, "", [])
-        return ""
-    
-    # 启动服务
-    if os.environ.get("STREAMLIT_SERVER_PORT"):
-        # 生产环境
-        server.start()
-    else:
-        # 本地开发
-        flask_app.run(port=8501)
+    # 登录成功后显示主界面
+    if user_logged_in:
+        st.session_state.user_email = login_ui.get_email()
+        main_dashboard()

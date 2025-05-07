@@ -97,10 +97,21 @@
 				<h1 class="h2_home fadeIn white-a" data-wow-delay="0.4s">ContagioScope</h1>
 				<h3 class="h3_home fadeIn white-a" data-wow-delay="0.6s">开源社会传播智能观测平台</h3>
 				<ul class="list-inline intro-social-buttons">
-					<li><a href="" class="btn  btn-lg mybutton_cyano fadeIn" data-wow-delay="0.8s"><span class="network-name">个人</span></a>
+					<li>
+						<a href="https://medical-research-profile.streamlit.app/?page=login" 
+							class="btn  btn-lg mybutton_cyano fadeIn" 
+							data-wow-delay="0.8s"
+							target="_blank"
+							rel="noopener noreferrer">
+							<span class="network-name">个人</span>
+						</a>
 					</li>
 					<li>
-						<a href="#" class="btn  btn-lg mybutton_standard swing fadeIn" data-wow-delay="1.2s" data-toggle="modal" data-target="#orgLoginModal">
+						<a href="https://medical-research-profile.streamlit.app/?page=login" 
+							class="btn  btn-lg mybutton_standard swing fadeIn" 
+							data-wow-delay="1.2s"
+							target="_blank"
+							rel="noopener noreferrer">
 							<span class="network-name">组织/公司</span>
 						</a>
 					</li>
@@ -111,29 +122,6 @@
 					<a class="imgcircle animate" href="#whatis" aria-label="向下滑动至简介">
 						<img class="img_scroll" src="img/icon/circle.png" alt="">
 					</a>
-				</div>
-			</div>
-		</div>
-		<!-- 组织登录模态框 -->
-		<div class="modal fade login-modal" id="orgLoginModal" tabindex="-1" role="dialog" aria-labelledby="orgLoginModalLabel" aria-hidden="true" data-focus="false">
-			<div class="modal-dialog" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4 class="modal-title text-center">组织/公司登录</h4>
-					</div>
-					<div class="modal-body">
-						<form id="loginForm">
-							<div class="form-group">
-								<input type="text" class="form-control" id="username" placeholder="机构代码" autocomplete="username" required>
-							</div>
-							<div class="form-group">
-								<input type="password" class="form-control" id="password" placeholder="安全密钥" autocomplete="current-password" required>
-							</div>
-							<button type="submit" class="btn btn-cyano btn-block">进入数据舱</button>
-							<div id="loginError" class="text-danger text-center mt-3" style="display:none;"></div>
-						</form>
-					</div>
 				</div>
 			</div>
 		</div>
@@ -434,8 +422,7 @@
 		</script>-->
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
-		<!-- 登录验证 -->
-		<script src="js/login.js"></script>
+		
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				console.log('[DEBUG] DOM已加载完成');
