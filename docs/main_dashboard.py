@@ -6,15 +6,38 @@ from pymongo import MongoClient
 import pandas as pd
 from urllib.parse import urlparse
 from wordcloud import WordCloud
+from trycourier import Courier
 from streamlit_login_auth_ui_zh.widgets import __login__
 from src.dashboard.core import DataDashboard
 from src.dashboard.visualizations import plot_sentiment_trend, draw_network_graph
+
+# ==================== Courier配置 ====================
+client = Courier(auth_token=st.secrets.courier.auth_token)
+
+def send_verification_email(email, username):
+    """发送机构注册验证邮件"""
+    try:
+        response = client.send_message(
+            message={
+                "to": {"email": email},
+                "template": st.secrets.courier.template_id,
+                "data": {
+                    "recipientName": username,
+                    "hospitalName": "浙江省中医院",  # 根据模板变量调整
+                    "loginLink": "http://your-domain.com/login"
+                }
+            }
+        )
+        return response['requestId']
+    except Exception as e:
+        st.error(f"邮件发送失败: {str(e)}")
+        return None
 
 # ==================== 登录系统配置 ====================
 def init_login():
     """初始化登录系统"""
     return __login__(
-        auth_token="courier_auth_token",  # 暂时使用模拟token
+        auth_token=st.secrets.courier.auth_token,  # 使用Courier Token
         company_name="流形暗面",
         width=300,
         height=400,
@@ -84,25 +107,6 @@ def get_font_path():
             return path
     return None
 
-def handle_user_registration(email, username, password):
-    """处理用户注册到MongoDB"""
-    client = MongoClient(os.getenv("MONGODB_URI"))
-    db = client["user_management"]
-    
-    # 检查用户是否存在
-    if db.users.find_one({"$or": [{"email": email}, {"username": username}]}):
-        return False
-    
-    # 插入新用户
-    db.users.insert_one({
-        "email": email,
-        "username": username,
-        "password": password,  # 实际应存储哈希值
-        "registration_date": pd.Timestamp.now(),
-        "access_level": "basic"
-    })
-    return True
-
 def validate_referral():
     """验证跳转来源"""
     allowed_referrers = [
@@ -111,7 +115,7 @@ def validate_referral():
         "medical-research-profile.streamlit.app"
     ]
 
-    query_params = st.experimental_get_query_params()
+    query_params = st.query_params
     if "page" not in query_params:
         st.markdown(f"""
         <script>
@@ -129,19 +133,19 @@ if __name__ == '__main__':
     validate_referral()
 
     # 初始化登录系统
-    login_ui = init_login()
     
-    # 构建登录界面(添加跳转参数)
-    user_logged_in = login_ui.build_login_ui(
-        preauthorized_domains=["zjsru.edu.cn", "contagioscope.ai"],
-        registration_callback=handle_user_registration,
-        extra_params={
-            "referrer": "github_pages",
-            "utm_source": "medical_research_protal"
-        }
-    )
+    try:
+        login_ui = init_login()
+        # 构建登录界面(添加跳转参数)
+        user_logged_in = login_ui.build_login_ui()
+    except Exception as e:
+        st.error(f"登录系统初始化失败: {e}")
+        st.stop()
     
-    # 登录成功后显示主界面
+    # 检查用户是否登录
     if user_logged_in:
-        st.session_state.user_email = login_ui.get_email()
+        st.write(f"欢迎：{st.session_state['username']}")  # 示例
         main_dashboard()
+    else:
+        st.warning("认证失败，请检查账号密码")
+        st.stop()
