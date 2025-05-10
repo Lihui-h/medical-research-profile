@@ -1,48 +1,39 @@
-// docs/js/login.js
-document.addEventListener('DOMContentLoaded', function() {
-  const loginForm = document.getElementById('loginForm');
-  const errorBox = document.getElementById('loginError');
-
-  // 阻止表单默认提交
-  loginForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
+// login.js 完整实现
+document.addEventListener('DOMContentLoaded', () => {
+  // 登录表单处理
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault()
     
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    // 清空错误提示
-    errorBox.textContent = '';
-    errorBox.style.display = 'none';
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    const statusEl = document.getElementById('loginStatus')
 
     try {
-      // 发送登录请求
-      const response = await fetch('https://medical-research-profile-ke2ztwqjq7z585fuompiq4.streamlit.app/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      // 1. 密码登录
+      const { data, error } = await window.supabase.auth.signInWithPassword({
+        email,
+        password
+      })
 
-      const result = await response.json();
+      if (error) throw error
 
-      if (result.success) {
-        // 存储认证状态（示例使用 sessionStorage）
-        sessionStorage.setItem('authToken', 'valid');
-        // 跳转到仪表盘
-        window.location.href = result.redirect;
-      } else {
-        showError(result.error || '登录失败');
-      }
+      // 2. 获取机构信息
+      const { data: orgData, error: orgError } = await window.supabase
+        .from('organizations')
+        .select('org_code, access_level')
+        .eq('admin_email', email)
+        .single()
+
+      if (orgError) throw orgError
+
+      // 3. 存储会话
+      localStorage.setItem('supabase_session', JSON.stringify(data.session))
+      window.location.href = 'dashboard.html'
+
     } catch (error) {
-      showError('网络错误，请检查连接');
-      console.error('API请求失败:', error);
+      console.error('登录失败:', error)
+      statusEl.textContent = `❌ 错误: ${error.message}`
+      statusEl.style.color = 'red'
     }
-  });
-
-  function showError(message) {
-    errorBox.textContent = message;
-    errorBox.style.display = 'block';
-    setTimeout(() => {
-      errorBox.style.display = 'none';
-    }, 3000);
-  }
-});
+  })
+})

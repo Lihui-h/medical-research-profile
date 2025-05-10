@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		
 		<meta charset="utf-8"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 		<meta name="description" content="ContagioScope: 开源社会传播智能观测平台"></meta>
@@ -10,6 +11,12 @@
 		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"></meta>
 		<meta http-equiv="Pragma" content="no-cache"></meta>
 		<meta http-equiv="Expires" content="0"></meta>
+		<meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self';
+               script-src 'self' https://klfoqpkffnkivcrfgmta.supabase.co;
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data:;
+               connect-src 'self' https://klfoqpkffnkivcrfgmta.supabase.co;"></meta>
 		<title>ContagioScope</title>
 		<link rel="shortcut icon" type="image/png" href="img/b.png"/>
 		<!-- Bootstrap core CSS -->
@@ -30,6 +37,34 @@
 		<link href="css/test.css" rel="stylesheet" />
 		<!-- 账号登陆 -->
 		<link href="css/login.css" rel="stylesheet" />
+		<script src="js/supabase.min.js"></script>
+		<!-- 官方推荐方式：使用 ES 模块加载 -->
+		<script type="module">
+			import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+		  
+			// 初始化配置
+			const supabaseUrl = 'https://klfoqpkffnkivcrfgmta.supabase.co'
+			const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZm9xcGtmZm5raXZjcmZnbXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MDYyNDEsImV4cCI6MjA2MjI4MjI0MX0.Bchuea3eYQetqHcJDaBCJiigU1L_9ULjceKFs_ZCWWU'
+		  
+			// 创建客户端实例
+			const supabase = createClient(supabaseUrl, supabaseKey)
+		  
+			// 暴露到全局对象
+			window.supabase = supabase
+
+			// 🎯 会话监控代码放在这里
+			supabase.auth.onAuthStateChange((event, session) => {
+				console.log(`认证状态变更: ${event}`, session)
+				
+				if (event === 'SIGNED_OUT') {
+				window.location.reload()
+				}
+				
+				if (event === 'TOKEN_REFRESHED') {
+				console.log('会话令牌已更新')
+				}
+			})
+		</script>
 		<!-- jquery -->
 		<script src="js/jquery-1.10.2.js"></script>
 		<script src="js/bootstrap.js"></script>
@@ -50,7 +85,49 @@
 		<!-- js背景 -->
 		<script src="js/particles.js"></script>
 		<script src="js/bg-particles.js"></script>
+		<script>
+			// 在DOM加载完成后添加以下代码
+			document.addEventListener('DOMContentLoaded', () => {
+			// 获取模态框元素
+			const authModal = document.getElementById('authModal')
+			const closeBtn = authModal.querySelector('.close')
+			
+			// 绑定组织/公司按钮点击事件
+			document.querySelector('[data-target="#authModal"]').addEventListener('click', function(e) {
+				e.preventDefault() // 阻止默认跳转行为
+				authModal.style.display = 'block' // 显示模态框
+			})
 
+			// 绑定关闭按钮事件
+			closeBtn.addEventListener('click', () => {
+				authModal.style.display = 'none'
+			})
+
+			// 点击模态框外部关闭
+			window.addEventListener('click', (e) => {
+				if (e.target === authModal) {
+				authModal.style.display = 'none'
+				}
+			})
+
+			// 标签切换逻辑（保持原有代码）
+			const tabs = document.querySelectorAll('.tab')
+			tabs.forEach(tab => {
+				tab.addEventListener('click', () => {
+				const tabName = tab.dataset.tab
+				tabs.forEach(t => t.classList.remove('active'))
+				tab.classList.add('active')
+				document.querySelectorAll('.auth-form').forEach(form => {
+					form.classList.toggle('active', form.id === `${tabName}Form`)
+				})
+				})
+			})
+			})
+		</script>
+		<!-- 登录脚本 -->
+		<script src="js/login.js" defer></script>
+		<!-- 注册 -->
+		<script src="js/signup.js" defer></script>
 		<style>
 			/* 定义动画关键帧 */
 			@keyframes fadeInUp {
@@ -82,6 +159,8 @@
 				50% { transform: translateY(-20px); }
 			}
 		</style>
+		<!-- 注册登陆表单样式 -->
+		<link href="css/authmodal.css" rel="stylesheet" />
 
 	</head>
 	<body id="home"><!--属性在styles.css里-->
@@ -98,20 +177,17 @@
 				<h3 class="h3_home fadeIn white-a" data-wow-delay="0.6s">开源社会传播智能观测平台</h3>
 				<ul class="list-inline intro-social-buttons">
 					<li>
-						<a href="https://medical-research-profile.streamlit.app/?page=login" 
-							class="btn  btn-lg mybutton_cyano fadeIn" 
-							data-wow-delay="0.8s"
-							target="_blank"
-							rel="noopener noreferrer">
+						<a href="" 
+							class="btn btn-lg mybutton_cyano fadeIn" 
+							data-wow-delay="0.8s">
 							<span class="network-name">个人</span>
 						</a>
 					</li>
 					<li>
-						<a href="https://medical-research-profile.streamlit.app/?page=login" 
-							class="btn  btn-lg mybutton_standard swing fadeIn" 
+						<a href="" 
+							class="btn btn-lg mybutton_standard swing fadeIn" 
 							data-wow-delay="1.2s"
-							target="_blank"
-							rel="noopener noreferrer">
+							data-target="#authModal">
 							<span class="network-name">组织/公司</span>
 						</a>
 					</li>
@@ -123,6 +199,35 @@
 						<img class="img_scroll" src="img/icon/circle.png" alt="">
 					</a>
 				</div>
+			</div>
+		</div>
+		<!-- 登录/注册切换模态框 -->
+		<div id="authModal" class="modal">
+			<div class="modal-content">
+			<span class="close">&times;</span>
+			
+			<!-- 切换标签 -->
+			<div class="auth-tabs">
+				<button class="tab active" data-tab="login">机构登录</button>
+				<button class="tab" data-tab="signup">新机构注册</button>
+			</div>
+		
+			<!-- 登录表单 -->
+			<form id="loginForm" class="auth-form active">
+				<input type="email" id="email" placeholder="管理员邮箱" required>
+				<input type="password" id="password" placeholder="安全密钥" required>
+				<button type="submit">进入数据舱</button>
+				<div id="loginStatus"></div>
+			</form>
+		
+			<!-- 注册表单 -->
+			<form id="signupForm" class="auth-form">
+				<input type="text" id="orgCode" placeholder="机构代码（4-20位字母数字）" pattern="[A-Za-z0-9]{4,20}" required>
+				<input type="email" id="signupEmail" placeholder="机构管理员邮箱" required>
+				<input type="password" id="signupPassword" placeholder="安全密钥（至少6位）" minlength="6" required>
+				<button type="submit">创建机构</button>
+				<div id="signupStatus"></div>
+			</form>
 			</div>
 		</div>
 		<!-- 导航栏 -->
@@ -384,6 +489,40 @@
 				</i>
 			</div>
 		</footer>
+		<!-- docs/index.html 新增部分 -->
+		<div id="dashboard" style="display:none;">
+			<!-- 动态内容将在此渲染 -->
+		</div>
+		
+		<script>
+		document.addEventListener('DOMContentLoaded', async () => {
+			const { data: { session } } = await supabase.auth.getSession()
+			
+			if (session) {
+			// 隐藏主页内容
+			document.querySelector('.overbg').style.display = 'none'
+			// 显示仪表盘容器
+			document.getElementById('dashboard').style.display = 'block'
+			// 初始化仪表盘
+			initDashboard(session)
+			}
+		})
+		
+		async function initDashboard(session) {
+			// 动态创建仪表盘结构
+			const dashboardEl = document.getElementById('dashboard')
+			dashboardEl.innerHTML = `
+			<div class="dashboard-header">
+				<h2>${session.user.email}的数据舱</h2>
+				<button onclick="handleLogout()">退出</button>
+			</div>
+			<div id="dashboard-content"></div>
+			`
+		
+			// 加载数据模块
+			loadDataMetrics(session.user.id)
+		}
+		</script>
 		<!-- 测试表单提交是否会被js劫持，如果发生劫持，启用下面被注释掉的部分 -->
 		<!--<div id="testArea" style="position:fixed; top:20px; right:20px; z-index:9999; background:white; padding:20px; border:2px solid red;">
 			<h3 style="color:red;">测试登录表单元件</h3>
@@ -422,6 +561,7 @@
 		</script>-->
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
+		
 		
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {

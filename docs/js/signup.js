@@ -1,0 +1,46 @@
+// signup.js 完整实现
+document.addEventListener('DOMContentLoaded', () => {
+    // 注册表单处理
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      
+      const email = document.getElementById('signupEmail').value
+      const password = document.getElementById('signupPassword').value
+      const statusEl = document.getElementById('signupStatus')
+  
+      try {
+        // 1. 用户注册
+        const { data, error } = await window.supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              org_name: document.getElementById('orgCode').value
+            }
+          }
+        })
+  
+        if (error) throw error
+  
+        // 2. 创建机构记录（需要RLS策略）
+        const { error: dbError } = await window.supabase
+          .from('organizations')
+          .insert([{
+            id: data.user.id,
+            org_code: document.getElementById('orgCode').value,
+            admin_email: email,
+            access_level: 'basic'
+          }])
+  
+        if (dbError) throw dbError
+  
+        statusEl.textContent = '✅ 注册成功！请检查邮箱验证'
+        statusEl.style.color = 'green'
+  
+      } catch (error) {
+        console.error('注册失败:', error)
+        statusEl.textContent = `❌ 错误: ${error.message}`
+        statusEl.style.color = 'red'
+      }
+    })
+  })

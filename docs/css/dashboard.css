@@ -1,0 +1,42 @@
+/* 新增css/dashboard.css */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .metric-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .post-list {
+    margin: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+  }
+  
+  .post-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .post-item:hover {
+    background: #f8f9fa;
+  }
+  
+  .sentiment-positive { color: #4CAF50; }
+  .sentiment-negative { color: #f44336; }
+  .sentiment-neutral { color: #9E9E9E; }

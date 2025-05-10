@@ -1,0 +1,206 @@
+/* 模态框主体样式增强 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6); /* 加深背景色 */
+    z-index: 9999; /* 确保在最顶层 */
+    backdrop-filter: blur(3px); /* 背景模糊效果 */
+  }
+  
+  .modal-content {
+    background: #f8f9fa; /* 浅色背景 */
+    width: 420px;
+    margin: 10vh auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+    animation: modalEnter 0.3s ease-out;
+  }
+  
+  /* 输入框专业样式 */
+  .auth-form input[type="email"],
+  .auth-form input[type="password"],
+  .auth-form input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    margin: 8px 0;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+  }
+  
+  /* 输入框聚焦效果 */
+  .auth-form input:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 8px rgba(33,150,243,0.2);
+    outline: none;
+  }
+  
+  /* 按钮现代设计 */
+  .auth-form button[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  /* 按钮交互效果 */
+  .auth-form button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33,150,243,0.3);
+  }
+  
+  .auth-form button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(33,150,243,0.3);
+  }
+  
+  /* 状态信息样式增强 */
+  #loginStatus, #signupStatus {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  #loginStatus.success, #signupStatus.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  #loginStatus.error, #signupStatus.error {
+    background: #ffebee;
+    color: #c62828;
+  }
+  
+  /* 标签切换专业设计 */
+  .auth-tabs {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+  }
+  
+  .tab {
+    padding: 12px 30px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    border: none;
+    background: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  
+  .tab.active {
+    color: #2196F3;
+  }
+  
+  .tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: #2196F3;
+    border-radius: 2px;
+  }
+  
+  /* 关闭按钮优化 */
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    color: #666;
+    transition: color 0.2s;
+  }
+  
+  .close:hover {
+    color: #444;
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 480px) {
+    .modal-content {
+      width: 90%;
+      margin: 5vh auto;
+      padding: 25px;
+    }
+    
+    .auth-form input {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+  }
+  
+  /* 入场动画 */
+  @keyframes modalEnter {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* 修复表单显示问题的CSS */
+.auth-form {
+    display: none; /* 默认隐藏所有表单 */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+  }
+  
+  .auth-form.active {
+    display: block; /* 仅激活的表单显示 */
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* 修复标签切换的激活状态 */
+  .auth-tabs .tab {
+    position: relative;
+    padding: 12px 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s;
+  }
+  
+  .auth-tabs .tab::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: #2196F3;
+    transition: width 0.3s;
+  }
+  
+  .auth-tabs .tab.active {
+    color: #2196F3;
+    font-weight: 500;
+  }
+  
+  .auth-tabs .tab.active::after {
+    width: 100%;
+  }
