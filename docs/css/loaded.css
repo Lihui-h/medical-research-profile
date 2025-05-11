@@ -1,0 +1,29 @@
+/* 定义动画关键帧 */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* 初始状态 */
+.abcen {
+    opacity: 1;
+    animation-fill-mode: forwards;
+}
+/* 滚动触发动画 */
+.abcen.animate {
+    animation: fadeInUp 1s ease-out;
+}
+/* 按钮特殊动画 */
+.imgcircle {
+    transform: translateY(30px);
+    transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block; /* 新增：确保a标签正确显示 */
+}
+.imgcircle.animate {
+    opacity: 1;
+    transform: translateY(0);
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}

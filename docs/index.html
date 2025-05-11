@@ -12,7 +12,7 @@
 		<meta http-equiv="Pragma" content="no-cache"></meta>
 		<meta http-equiv="Expires" content="0"></meta>
 		<meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self';
+      		content="default-src 'self';
                script-src 'self' https://klfoqpkffnkivcrfgmta.supabase.co;
                style-src 'self' 'unsafe-inline';
                img-src 'self' data:;
@@ -39,32 +39,7 @@
 		<link href="css/login.css" rel="stylesheet" />
 		<script src="js/supabase.min.js"></script>
 		<!-- 官方推荐方式：使用 ES 模块加载 -->
-		<script type="module">
-			import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-		  
-			// 初始化配置
-			const supabaseUrl = 'https://klfoqpkffnkivcrfgmta.supabase.co'
-			const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZm9xcGtmZm5raXZjcmZnbXRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MDYyNDEsImV4cCI6MjA2MjI4MjI0MX0.Bchuea3eYQetqHcJDaBCJiigU1L_9ULjceKFs_ZCWWU'
-		  
-			// 创建客户端实例
-			const supabase = createClient(supabaseUrl, supabaseKey)
-		  
-			// 暴露到全局对象
-			window.supabase = supabase
-
-			// 🎯 会话监控代码放在这里
-			supabase.auth.onAuthStateChange((event, session) => {
-				console.log(`认证状态变更: ${event}`, session)
-				
-				if (event === 'SIGNED_OUT') {
-				window.location.reload()
-				}
-				
-				if (event === 'TOKEN_REFRESHED') {
-				console.log('会话令牌已更新')
-				}
-			})
-		</script>
+		<script type="module" src="js/init.js"></script>
 		<!-- jquery -->
 		<script src="js/jquery-1.10.2.js"></script>
 		<script src="js/bootstrap.js"></script>
@@ -85,80 +60,14 @@
 		<!-- js背景 -->
 		<script src="js/particles.js"></script>
 		<script src="js/bg-particles.js"></script>
-		<script>
-			// 在DOM加载完成后添加以下代码
-			document.addEventListener('DOMContentLoaded', () => {
-			// 获取模态框元素
-			const authModal = document.getElementById('authModal')
-			const closeBtn = authModal.querySelector('.close')
-			
-			// 绑定组织/公司按钮点击事件
-			document.querySelector('[data-target="#authModal"]').addEventListener('click', function(e) {
-				e.preventDefault() // 阻止默认跳转行为
-				authModal.style.display = 'block' // 显示模态框
-			})
-
-			// 绑定关闭按钮事件
-			closeBtn.addEventListener('click', () => {
-				authModal.style.display = 'none'
-			})
-
-			// 点击模态框外部关闭
-			window.addEventListener('click', (e) => {
-				if (e.target === authModal) {
-				authModal.style.display = 'none'
-				}
-			})
-
-			// 标签切换逻辑（保持原有代码）
-			const tabs = document.querySelectorAll('.tab')
-			tabs.forEach(tab => {
-				tab.addEventListener('click', () => {
-				const tabName = tab.dataset.tab
-				tabs.forEach(t => t.classList.remove('active'))
-				tab.classList.add('active')
-				document.querySelectorAll('.auth-form').forEach(form => {
-					form.classList.toggle('active', form.id === `${tabName}Form`)
-				})
-				})
-			})
-			})
-		</script>
+		<!-- 账号登陆 -->
+		<script src="js/auth.js"></script>
 		<!-- 登录脚本 -->
 		<script src="js/login.js" defer></script>
 		<!-- 注册 -->
 		<script src="js/signup.js" defer></script>
-		<style>
-			/* 定义动画关键帧 */
-			@keyframes fadeInUp {
-				from { opacity: 0; transform: translateY(50px); }
-				to { opacity: 1; transform: translateY(0); }
-			}
-			/* 初始状态 */
-			.abcen {
-				opacity: 1;
-				animation-fill-mode: forwards;
-			}
-			/* 滚动触发动画 */
-			.abcen.animate {
-				animation: fadeInUp 1s ease-out;
-			}
-			/* 按钮特殊动画 */
-			.imgcircle {
-				transform: translateY(30px);
-				transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-				display: block; /* 新增：确保a标签正确显示 */
-			}
-			.imgcircle.animate {
-				opacity: 1;
-				transform: translateY(0);
-				animation: bounce 2s infinite;
-			}
-			@keyframes bounce {
-				0%, 100% { transform: translateY(0); }
-				50% { transform: translateY(-20px); }
-			}
-		</style>
+		<!-- 下拉加载动画 -->
+		<link href="css/loaded.css" rel="stylesheet" />
 		<!-- 注册登陆表单样式 -->
 		<link href="css/authmodal.css" rel="stylesheet" />
 
@@ -561,8 +470,6 @@
 		</script>-->
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
-		
-		
 		<script>
 			document.addEventListener('DOMContentLoaded', function() {
 				console.log('[DEBUG] DOM已加载完成');
