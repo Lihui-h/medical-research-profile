@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		
 		<meta charset="utf-8"></meta>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 		<meta name="description" content="ContagioScope: 开源社会传播智能观测平台"></meta>
@@ -402,36 +401,7 @@
 		<div id="dashboard" style="display:none;">
 			<!-- 动态内容将在此渲染 -->
 		</div>
-		
-		<script>
-		document.addEventListener('DOMContentLoaded', async () => {
-			const { data: { session } } = await supabase.auth.getSession()
-			
-			if (session) {
-			// 隐藏主页内容
-			document.querySelector('.overbg').style.display = 'none'
-			// 显示仪表盘容器
-			document.getElementById('dashboard').style.display = 'block'
-			// 初始化仪表盘
-			initDashboard(session)
-			}
-		})
-		
-		async function initDashboard(session) {
-			// 动态创建仪表盘结构
-			const dashboardEl = document.getElementById('dashboard')
-			dashboardEl.innerHTML = `
-			<div class="dashboard-header">
-				<h2>${session.user.email}的数据舱</h2>
-				<button onclick="handleLogout()">退出</button>
-			</div>
-			<div id="dashboard-content"></div>
-			`
-		
-			// 加载数据模块
-			loadDataMetrics(session.user.id)
-		}
-		</script>
+		<script src="js/supabase_auth.js"></script>
 		<!-- 测试表单提交是否会被js劫持，如果发生劫持，启用下面被注释掉的部分 -->
 		<!--<div id="testArea" style="position:fixed; top:20px; right:20px; z-index:9999; background:white; padding:20px; border:2px solid red;">
 			<h3 style="color:red;">测试登录表单元件</h3>
@@ -470,11 +440,6 @@
 		</script>-->
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				console.log('[DEBUG] DOM已加载完成');
-				// 确保所有JS初始化代码在此事件内执行
-			});
-		</script>
+		<script src="js/dom_log_end.js"></script>
 	</body>
 </html>
