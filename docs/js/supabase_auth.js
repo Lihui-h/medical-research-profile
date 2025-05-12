@@ -20,14 +20,20 @@ window.handleDashboardError = (error) => {
 window.initAuth = async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession()
+    console.log('当前会话:', session) // 调试点1
     
     if (session) {
       // 添加全局状态类
+      console.log('开始隐藏主内容') // 调试点2
       document.body.classList.add('dashboard-active')
+      console.log('Body类已添加:', document.body.className) // 调试点3
 
       // 关闭模态框（如果存在）
       const authModal = document.getElementById('authModal')
-      if (authModal) authModal.style.display = 'none'
+      if (authModal) {
+        console.log('关闭模态框') // 调试点4
+        authModal.style.display = 'none'
+      }
 
       // 动态加载仪表盘模块
       const { loadDataMetrics, renderDashboard } = await import('./dashboard.js')
@@ -41,6 +47,11 @@ window.initAuth = async () => {
         renderDashboard('dashboard-content', data)
         initLogoutButton() // 初始化退出按钮
       }
+
+      // 调试仪表盘容器
+      const dashboard = document.getElementById('dashboard')
+      console.log('仪表盘元素:', dashboard) // 调试点5
+      console.log('当前显示状态:', getComputedStyle(dashboard).display) // 调试点6
     }
   } catch (error) {
     handleDashboardError(error)
