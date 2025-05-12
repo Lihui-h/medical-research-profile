@@ -40,3 +40,31 @@
   .sentiment-positive { color: #4CAF50; }
   .sentiment-negative { color: #f44336; }
   .sentiment-neutral { color: #9E9E9E; }
+
+  /* 主内容容器 */
+.main-content {
+  transition: opacity 0.3s;
+}
+
+/* 仪表盘全屏样式 */
+#dashboard {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: 1000;
+  overflow-y: auto;
+  display: none;
+}
+
+/* 登录后隐藏主内容 */
+.dashboard-active .main-content {
+  opacity: 0;
+  pointer-events: none; /* 禁用交互 */
+}
+
+.dashboard-active #dashboard {
+  display: block;
+}

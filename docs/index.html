@@ -41,6 +41,7 @@
 		<link href="css/loaded.css" rel="stylesheet" />
 		<!-- 注册登陆表单样式 -->
 		<link href="css/authmodal.css" rel="stylesheet" />
+		<link href="css/dashboard.css" rel="stylesheet" />
 
 		<script src="js/supabase.min.js"></script>
 		<!-- 官方推荐方式：使用 ES 模块加载 -->
@@ -75,345 +76,284 @@
 
 	</head>
 	<body id="home"><!--属性在styles.css里-->
-		<!-- 加载动画 -->
-		<div id="preloader">
-			<div id="status"></div>
-		</div>
-		<!-- 首页HOME -->
-		<canvas class="background"></canvas>
-		<!-- 背景颜色在background在test.css里，线和其他属性在Particles.js里 -->
-		<div class="overbg">
-			<div class="col-xs-12 text-center abcen1">
-				<h1 class="h2_home fadeIn white-a" data-wow-delay="0.4s">ContagioScope</h1>
-				<h3 class="h3_home fadeIn white-a" data-wow-delay="0.6s">开源社会传播智能观测平台</h3>
-				<ul class="list-inline intro-social-buttons">
-					<li>
-						<a href="" 
-							class="btn btn-lg mybutton_cyano fadeIn" 
-							data-wow-delay="0.8s">
-							<span class="network-name">个人</span>
-						</a>
-					</li>
-					<li>
-						<a href="" 
-							class="btn btn-lg mybutton_standard swing fadeIn" 
-							data-wow-delay="1.2s"
-							data-target="#authModal">
-							<span class="network-name">组织/公司</span>
-						</a>
-					</li>
-				</ul>
+		<div id="app-container">
+			<!-- 加载动画 -->
+			<div id="preloader">
+				<div id="status"></div>
 			</div>
-			<div class="col-xs-12 text-center abcen">
-				<div class="button_down ">
-					<a class="imgcircle animate" href="#whatis" aria-label="向下滑动至简介">
-						<img class="img_scroll" src="img/icon/circle.png" alt="">
-					</a>
-				</div>
-			</div>
-		</div>
-		<!-- 登录/注册切换模态框 -->
-		<div id="authModal" class="modal">
-			<div class="modal-content">
-			<span class="close">&times;</span>
-			
-			<!-- 切换标签 -->
-			<div class="auth-tabs">
-				<button class="tab active" data-tab="login">机构登录</button>
-				<button class="tab" data-tab="signup">新机构注册</button>
-			</div>
-		
-			<!-- 登录表单 -->
-			<form id="loginForm" class="auth-form active">
-				<input type="email" id="email" placeholder="管理员邮箱" required>
-				<input type="password" id="password" placeholder="安全密钥" required>
-				<button type="submit">进入数据舱</button>
-				<div id="loginStatus"></div>
-			</form>
-		
-			<!-- 注册表单 -->
-			<form id="signupForm" class="auth-form">
-				<input type="text" id="orgCode" placeholder="机构代码（4-20位字母数字）" pattern="[A-Za-z0-9]{4,20}" required>
-				<input type="email" id="signupEmail" placeholder="机构管理员邮箱" required>
-				<input type="password" id="signupPassword" placeholder="安全密钥（至少6位）" minlength="6" required>
-				<button type="submit">创建机构</button>
-				<div id="signupStatus"></div>
-			</form>
-			</div>
-		</div>
-		<!-- 导航栏 -->
-		<nav class="navbar-default" role="navigation">
-			<div class="container">
-				<div class="navbar-header">
-					<a class="navbar-brand" href="#home">HOME</a>
-				</div>
-				<div class="navigation">
-					<ul class="nav navbar-nav menu">
-						<li><a href="#whatis">简介</a></li>
-						<li class="dropdown">
-							<a href="#project" class="dropbtn">科研项目</a>
-							<div class="dropdown-content block-small">
-								<a href="#szqp">成瘾模型</a><!--后面href再修改-->
-								<a href="#sljn">传播模型</a>
-								<!--注释了先<a href="#jcsj"></a>-->
-								<!--<a href="#lcsw"></a>-->
-							</div>
-						</li>
-						<!--注释了先<li><a href="#equipment">实验设备</a></li>-->
-						<!--注释了先<li><a href="#entrance">门禁和监控</a></li>-->
-						<li><a href="#contact">联系我们</a></li>
-					</ul>
-					<div class="menuToggle" data-toggle="modal" data-target="#orgLoginModal"></div>
-				</div>
-			</div>
-		</nav>
-		<!-- 简介 -->
-		<div id="whatis" class="content-section-b" style="border-top: 0">
-			<div class="container">
-				<div class="col-md-6 col-md-offset-3 text-center wrap_title">
-					<h2>简介</h2>
-					<p class="lead" style="margin-top:0">INTRODUCTION</p>
-                    <!--这个地方插入具体简介内容，暂时考虑以下内容：-->
-                    <!--我的最初目的是受到一个研究吸烟的成瘾性模型的稳定性分析的论文的启发，该论文并未解释广告或者说对于吸烟的信息传播是否作为模型的另一个因素。-->
-                    <!--另外，很多传染病表面上看是流行终止，目前很多传染病模型都是基于流行终止为目的，但有没有可能，只是在特定群里里的终止，或者说，从系统的角度看来，各类疾病是否从一个系统转到另一个系统，比如说从亚洲传播转到非洲传播，或者从人类传播转到动物传播。
-                    目前公司在申请，目前暂定的名称是杭州流形暗面科技有限公司，这是基于未来从模型的可视化角度考虑的微分流形，-->
-				</div>
-                <!--注意下面的row的块跟上面的区别，可能位于下一层，目前我暂时注释掉这个结构-->
-				<!--<div class="row">
-					<div class="col-md-4 whatis-grid text-center">
-						<img class="rotate" src="img/icon/folder.svg" alt="Generic placeholder image" data-toggle="modal" data-target="#myModal1">
-						<h3>部门</h3>
-						<p class="lead"></p>
-						<div class="bootstrap-pop-up">
-						</div>
+
+			<div class="main-content">
+				<!-- 首页HOME -->
+				<canvas class="background"></canvas>
+				<!-- 背景颜色在background在test.css里，线和其他属性在Particles.js里 -->
+				<div class="overbg">
+					<div class="col-xs-12 text-center abcen1">
+						<h1 class="h2_home fadeIn white-a" data-wow-delay="0.4s">ContagioScope</h1>
+						<h3 class="h3_home fadeIn white-a" data-wow-delay="0.6s">开源社会传播智能观测平台</h3>
+						<ul class="list-inline intro-social-buttons">
+							<li>
+								<a href="" 
+									class="btn btn-lg mybutton_cyano fadeIn" 
+									data-wow-delay="0.8s">
+									<span class="network-name">个人</span>
+								</a>
+							</li>
+							<li>
+								<a href="" 
+									class="btn btn-lg mybutton_standard swing fadeIn" 
+									data-wow-delay="1.2s"
+									data-target="#authModal">
+									<span class="network-name">组织/公司</span>
+								</a>
+							</li>
+						</ul>
 					</div>
-					我用&&表示注释内注释& myModal1 &&这个是部门的弹出框，注意这个结构以及对应的id命名myModal1&
-					<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header" style="float:inherit">
-									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">&data-dismiss="modal"表示关闭modal&
-									<span id="">部门</span>
-									<div style="clear:both"></div>
-								</div>
-								<div class="modal-body">
-									<img src="" style="width:100%;height:auto">&src里是图片链接&
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 whatis-grid text-center">
-						<img src="img/成员.jpg" alt="Generic placeholder image" width="100" height="100" class="rotate" data-toggle="modal" data-target="#myModal2">
-						<h3>成员</h3>
-						<p class="lead"></p>
-						<div class="bootstrap-pop-up">
-						</div>
-					</div>
-					& myModal2 &
-					<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header" style="float:inherit">
-									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">
-									<span id="">成员</span>
-									<div style="clear:both"></div>
-								</div>
-								<div class="modal-body" align="left">
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-4 whatis-grid text-center">
-						<img src="img/制度.png" alt="Generic placeholder image" width="100" height="100" class="rotate" data-toggle="modal" data-target="#myModal3">
-						<h3>制度</h3>
-						<p class="lead">各类材料下载</p>
-						<div class="bootstrap-pop-up">
-						</div>
-					</div>
-					& myModal3 &
-					<div class="modal fade" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-						<div class="modal-dialog" role="document">
-							<div class="modal-content">
-								<div class="modal-header" style="float:inherit">
-									<img src="img/返回.png" id="" data-dismiss="modal" width="20" height="20">
-									<span id="">制度</span>
-									<div style="clear:both"></div>
-								</div>
-								<div class="modal-body">
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>-->
-				<div class="row tworow"><!--这个块是干嘛的忘了，以后测试-->
-				</div>
-			</div>
-		</div>
-		<!-- 科研项目 -->
-		<div id="project"></div>
-		<!-- 成瘾模型 -->
-		<div id ="szqp" class="content-section-a">
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-6 fadeInLeftBig">
-						<div id="owl-demo-2" class="owl-carousel"><!--owl设置在script.js里面-->
-							<div class="item">
-								<img class="img-responsive img-rounded" src="" alt="">
-							</div>
-							<div class="item">
-								<img class="img-responsive img-rounded" src="" alt="">
-							</div>
-						</div>
-					</div>
-					<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
-						<h3 class="section-heading">成瘾模型</h3>
-						<div class="sub-title lead3"><br></div>
-						<p class="lead"></p>
-						<a data-toggle="modal" data-target="#myModal102" class="btn btn-embossed btn-primary" role="button">View Details</a>
-						<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
-					</div>
-				</div>
-			</div>
-			<!-- myModal102 -->
-			<div class="modal fade" id="myModal102" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-				<div class="modal-dialog" style="height:auto">
-					<div class="modal-content">
-						<div class="modal-header" style="float:inherit">
-							<img src="img/返回.png" alt="退出模态框" id="img001" data-dismiss="modal" width="20" height="20">
-							<span id="span001">成瘾模型</span><!--每个id必须唯一-->
-							<div style="clear:both"></div>
-						</div>
-						<div class="modal-body">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- 传播模型 -->
-		<div id="sljn" class="content-section-c">
-			<div class="container">
-				<div class="row">
-					<div class="col-sm-6 fadeInLeftBig">
-						<div id="owl-demo-1" class="owl-carousel">
-							<div class="item">
-								<img class="img-responsive img-rounded" src="" alt="">
-							</div>
-						</div>
-					</div>
-					<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
-						<h3 class="section-heading white">传播模型</h3>
-						<div class="sub-title lead3"><br></div>
-						<p class="lead"></p>
-						<a data-toggle="modal" data-target="#myModal103" class="btn btn-embossed btn-primary" role="button">View Details</a> 
-						<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
-					</div>
-				</div>
-			</div>
-			<!-- myModal103 -->
-			<div class="modal fade" id="myModal103" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-				<div class="modal-dialog" style="height:auto">
-					<div class="modal-content">
-						<div class="modal-header" style="float:inherit">
-							<img src="img/返回.png" alt="退出模态框" id="img002" data-dismiss="modal" width="20" height="20">
-							<span id="span002">传播模型</span>
-							<div style="clear:both"></div>
-						</div>
-						<div class="modal-body">
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- Contact -->
-		<div id="contact" class="content-section-a"><!--如果要添加背景图片，在buding.css的bgadd属性里修改，当然别忘了在这里添加bgadd-->
-			<div class="container">
-				<div class="row">
-					<div class="col-md-6 col-md-offset-3 text-center wrap_title flat-non">
-						<h2>Contact Us</h2>
-						<p class="lead" style="margin-top:0"></p>
-					</div>
-					<hr class="featurette-divider hidden-lg"/>
-					<div class="apk">
-						<div class="apk001">
-							<a href="">
-								<div class="apk-hidden">
-									<img src="" alt="APP二维码"/>
-								</div>
-								<span class="icon-apk">
-									<img src="img/下载.svg" alt=""/>
-								</span>
-								<p class="lead">下载APP</p>
+					<div class="col-xs-12 text-center abcen">
+						<div class="button_down ">
+							<a class="imgcircle animate" href="#whatis" aria-label="向下滑动至简介">
+								<img class="img_scroll" src="img/icon/circle.png" alt="">
 							</a>
 						</div>
-						<div class="apk001">
-							<div class="apk-email">
-								<p>联系邮箱：lhhong@zjsru.edu.cn</p>
-							</div>
-							<span class="icon-email">
-								<img src="img/邮箱.svg" alt=""/>
-							</span>
-							<p class="lead">邮箱</p>
+					</div>
+				</div>
+				<!-- 登录/注册切换模态框 -->
+				<div id="authModal" class="modal">
+					<div class="modal-content">
+					<span class="close">&times;</span>
+					
+					<!-- 切换标签 -->
+					<div class="auth-tabs">
+						<button class="tab active" data-tab="login">机构登录</button>
+						<button class="tab" data-tab="signup">新机构注册</button>
+					</div>
+				
+					<!-- 登录表单 -->
+					<form id="loginForm" class="auth-form active">
+						<input type="email" id="email" placeholder="管理员邮箱" required>
+						<input type="password" id="password" placeholder="安全密钥" required>
+						<button type="submit">进入数据舱</button>
+						<div id="loginStatus"></div>
+					</form>
+				
+					<!-- 注册表单 -->
+					<form id="signupForm" class="auth-form">
+						<input type="text" id="orgCode" placeholder="机构代码（4-20位字母数字）" pattern="[A-Za-z0-9]{4,20}" required>
+						<input type="email" id="signupEmail" placeholder="机构管理员邮箱" required>
+						<input type="password" id="signupPassword" placeholder="安全密钥（至少6位）" minlength="6" required>
+						<button type="submit">创建机构</button>
+						<div id="signupStatus"></div>
+					</form>
+					</div>
+				</div>
+				<!-- 导航栏 -->
+				<nav class="navbar-default" role="navigation">
+					<div class="container">
+						<div class="navbar-header">
+							<a class="navbar-brand" href="#home">HOME</a>
 						</div>
-						<div class="apk001">
-							<div class="apk-hidden">
-								<p>联系QQ：</p>
-							</div>
-							<span class="icon-qq">
-								<img src="img/QQ.svg" alt=""/>
-							</span>
-							<p class="lead">QQ</p>
-						</div>
-						<div class="apk001">
-							<div class="apk-hidden">
-								<p>联系微信：</p>
-							</div>
-							<span class="icon-weichat">
-								<img src="img/微信.svg" alt=""/>
-							</span>
-							<p class="lead">微信</p>
+						<div class="navigation">
+							<ul class="nav navbar-nav menu">
+								<li><a href="#whatis">简介</a></li>
+								<li class="dropdown">
+									<a href="#project" class="dropbtn">科研项目</a>
+									<div class="dropdown-content block-small">
+										<a href="#szqp">成瘾模型</a><!--后面href再修改-->
+										<a href="#sljn">传播模型</a>
+										<!--注释了先<a href="#jcsj"></a>-->
+										<!--<a href="#lcsw"></a>-->
+									</div>
+								</li>
+								<!--注释了先<li><a href="#equipment">实验设备</a></li>-->
+								<!--注释了先<li><a href="#entrance">门禁和监控</a></li>-->
+								<li><a href="#contact">联系我们</a></li>
+							</ul>
+							<div class="menuToggle" data-toggle="modal" data-target="#orgLoginModal"></div>
 						</div>
 					</div>
-					<div class="col-md-5 col-md-push-1 address flat-non inline-block">
-						<address>
-							<h3>Office Location</h3>
-							<p class="lead">
-								浙江省杭州市
-								<br>余杭区
-							</p>
-						</address>
-						<div class="lianjie">
-							<h3>友情链接</h3>
-							<p class="lead">
-								<!--后面再加<a href=""></a>
-								<br /><a href=""></a>-->
-							</p>
+				</nav>
+				<!-- 简介 -->
+				<div id="whatis" class="content-section-b" style="border-top: 0">
+					<div class="container">
+						<div class="col-md-6 col-md-offset-3 text-center wrap_title">
+							<h2>简介</h2>
+							<p class="lead" style="margin-top:0">INTRODUCTION</p>
+							<!--这个地方插入具体简介内容，暂时考虑以下内容：-->
+							<!--我的最初目的是受到一个研究吸烟的成瘾性模型的稳定性分析的论文的启发，该论文并未解释广告或者说对于吸烟的信息传播是否作为模型的另一个因素。-->
+							<!--另外，很多传染病表面上看是流行终止，目前很多传染病模型都是基于流行终止为目的，但有没有可能，只是在特定群里里的终止，或者说，从系统的角度看来，各类疾病是否从一个系统转到另一个系统，比如说从亚洲传播转到非洲传播，或者从人类传播转到动物传播。
+							目前公司在申请，目前暂定的名称是杭州流形暗面科技有限公司，这是基于未来从模型的可视化角度考虑的微分流形，-->
+						</div>
+						<div class="row tworow"><!--这个块是干嘛的忘了，以后测试-->
 						</div>
 					</div>
 				</div>
+				<!-- 科研项目 -->
+				<div id="project"></div>
+				<!-- 成瘾模型 -->
+				<div id ="szqp" class="content-section-a">
+					<div class="container">
+						<div class="row">
+							<div class="col-sm-6 fadeInLeftBig">
+								<div id="owl-demo-2" class="owl-carousel"><!--owl设置在script.js里面-->
+									<div class="item">
+										<img class="img-responsive img-rounded" src="" alt="">
+									</div>
+									<div class="item">
+										<img class="img-responsive img-rounded" src="" alt="">
+									</div>
+								</div>
+							</div>
+							<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
+								<h3 class="section-heading">成瘾模型</h3>
+								<div class="sub-title lead3"><br></div>
+								<p class="lead"></p>
+								<a data-toggle="modal" data-target="#myModal102" class="btn btn-embossed btn-primary" role="button">View Details</a>
+								<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
+							</div>
+						</div>
+					</div>
+					<!-- myModal102 -->
+					<div class="modal fade" id="myModal102" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+						<div class="modal-dialog" style="height:auto">
+							<div class="modal-content">
+								<div class="modal-header" style="float:inherit">
+									<img src="img/返回.png" alt="退出模态框" id="img001" data-dismiss="modal" width="20" height="20">
+									<span id="span001">成瘾模型</span><!--每个id必须唯一-->
+									<div style="clear:both"></div>
+								</div>
+								<div class="modal-body">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 传播模型 -->
+				<div id="sljn" class="content-section-c">
+					<div class="container">
+						<div class="row">
+							<div class="col-sm-6 fadeInLeftBig">
+								<div id="owl-demo-1" class="owl-carousel">
+									<div class="item">
+										<img class="img-responsive img-rounded" src="" alt="">
+									</div>
+								</div>
+							</div>
+							<div class="center col-sm-6 fadeInRightBig"  data-animation-delay="200">
+								<h3 class="section-heading white">传播模型</h3>
+								<div class="sub-title lead3"><br></div>
+								<p class="lead"></p>
+								<a data-toggle="modal" data-target="#myModal103" class="btn btn-embossed btn-primary" role="button">View Details</a> 
+								<a href="" target="_parent" class="btn btn-embossed btn-info" role="button">Visit Website</a>
+							</div>
+						</div>
+					</div>
+					<!-- myModal103 -->
+					<div class="modal fade" id="myModal103" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+						<div class="modal-dialog" style="height:auto">
+							<div class="modal-content">
+								<div class="modal-header" style="float:inherit">
+									<img src="img/返回.png" alt="退出模态框" id="img002" data-dismiss="modal" width="20" height="20">
+									<span id="span002">传播模型</span>
+									<div style="clear:both"></div>
+								</div>
+								<div class="modal-body">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Contact -->
+				<div id="contact" class="content-section-a"><!--如果要添加背景图片，在buding.css的bgadd属性里修改，当然别忘了在这里添加bgadd-->
+					<div class="container">
+						<div class="row">
+							<div class="col-md-6 col-md-offset-3 text-center wrap_title flat-non">
+								<h2>Contact Us</h2>
+								<p class="lead" style="margin-top:0"></p>
+							</div>
+							<hr class="featurette-divider hidden-lg"/>
+							<div class="apk">
+								<div class="apk001">
+									<a href="">
+										<div class="apk-hidden">
+											<img src="" alt="APP二维码"/>
+										</div>
+										<span class="icon-apk">
+											<img src="img/下载.svg" alt=""/>
+										</span>
+										<p class="lead">下载APP</p>
+									</a>
+								</div>
+								<div class="apk001">
+									<div class="apk-email">
+										<p>联系邮箱：lhhong@zjsru.edu.cn</p>
+									</div>
+									<span class="icon-email">
+										<img src="img/邮箱.svg" alt=""/>
+									</span>
+									<p class="lead">邮箱</p>
+								</div>
+								<div class="apk001">
+									<div class="apk-hidden">
+										<p>联系QQ：</p>
+									</div>
+									<span class="icon-qq">
+										<img src="img/QQ.svg" alt=""/>
+									</span>
+									<p class="lead">QQ</p>
+								</div>
+								<div class="apk001">
+									<div class="apk-hidden">
+										<p>联系微信：</p>
+									</div>
+									<span class="icon-weichat">
+										<img src="img/微信.svg" alt=""/>
+									</span>
+									<p class="lead">微信</p>
+								</div>
+							</div>
+							<div class="col-md-5 col-md-push-1 address flat-non inline-block">
+								<address>
+									<h3>Office Location</h3>
+									<p class="lead">
+										浙江省杭州市
+										<br>余杭区
+									</p>
+								</address>
+								<div class="lianjie">
+									<h3>友情链接</h3>
+									<p class="lead">
+										<!--后面再加<a href=""></a>
+										<br /><a href=""></a>-->
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- 尾部 -->
+				<footer>
+					<div class="container center">
+						<!-- 以后放备案信息？ -->
+						<i class="font-size2">
+						</i>
+					</div>
+				</footer>
+			</div>
+			
+			<!-- 仪表盘动态内容容器 -->
+			<div id="dashboard" style="display:none;">
+				<div class="dashboard-header">
+					<h2 id="dashboardTitle">数据舱加载中...</h2>
+					<button id="logoutBtn">退出</button>
+				</div>
+				<div id="dashboard-content">
+				</div>
 			</div>
 		</div>
-		<!-- 尾部 -->
-		<footer>
-			<div class="container center">
-				<!-- 以后放备案信息？ -->
-				<i class="font-size2">
-				</i>
-			</div>
-		</footer>
-		
+
+		<!-- 在body底部脚本 -->
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
 		<script src="js/dom_log_end.js"></script>
-		
-		<!-- 动态内容容器 -->
-		<div id="dashboard" style="display:none;">
-		<div class="dashboard-header">
-			<h2 id="dashboardTitle">数据舱加载中...</h2>
-			<button id="logoutBtn">退出</button>
-		</div>
-		<div id="dashboard-content"></div>
-		</div>
-		<!-- 在body底部 -->
 		<script type="module" src="js/supabase.js"></script>
 		<script type="module" src="js/supabase_auth.js"></script>
 	</body>

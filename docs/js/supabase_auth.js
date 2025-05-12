@@ -22,10 +22,12 @@ window.initAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession()
     
     if (session) {
-      // 隐藏登录界面
-      document.querySelector('.overbg').style.display = 'none'
-      const dashboardContainer = document.getElementById('dashboard')
-      dashboardContainer.style.display = 'block'
+      // 添加全局状态类
+      document.body.classList.add('dashboard-active')
+
+      // 关闭模态框（如果存在）
+      const authModal = document.getElementById('authModal')
+      if (authModal) authModal.style.display = 'none'
 
       // 动态加载仪表盘模块
       const { loadDataMetrics, renderDashboard } = await import('./dashboard.js')
@@ -45,15 +47,13 @@ window.initAuth = async () => {
   }
 }
 
-// 退出功能初始化
+// 退出时恢复状态
 function initLogoutButton() {
-  const logoutBtn = document.getElementById('logoutBtn')
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
       await supabase.auth.signOut()
+      document.body.classList.remove('dashboard-active')
       window.location.reload()
     })
-  }
 }
 
 // 初始化认证状态监听
