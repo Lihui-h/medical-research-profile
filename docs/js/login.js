@@ -1,4 +1,5 @@
 // login.js 完整实现
+import { supabase } from './supabase.js'
 document.addEventListener('DOMContentLoaded', () => {
   // 登录表单处理
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // 1. 密码登录
-      const { data, error } = await window.supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) throw error
 
       // 2. 获取机构信息
-      const { data: orgData, error: orgError } = await window.supabase
+      const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .select('org_code, access_level')
         .eq('admin_email', email)
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 3. 存储会话
       localStorage.setItem('supabase_session', JSON.stringify(data.session))
-      window.location.href = 'dashboard.html'
+      location.href = 'dashboard.html'
 
     } catch (error) {
       console.error('登录失败:', error)
