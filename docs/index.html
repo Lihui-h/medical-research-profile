@@ -37,6 +37,11 @@
 		<link href="css/test.css" rel="stylesheet" />
 		<!-- 账号登陆 -->
 		<link href="css/login.css" rel="stylesheet" />
+		<!-- 下拉加载动画 -->
+		<link href="css/loaded.css" rel="stylesheet" />
+		<!-- 注册登陆表单样式 -->
+		<link href="css/authmodal.css" rel="stylesheet" />
+
 		<script src="js/supabase.min.js"></script>
 		<!-- 官方推荐方式：使用 ES 模块加载 -->
 		<script type="module" src="js/supabase.js"></script>
@@ -66,10 +71,7 @@
 		<script type="module" src="js/login.js"></script>
 		<!-- 注册 -->
 		<script src="js/signup.js"></script>
-		<!-- 下拉加载动画 -->
-		<link href="css/loaded.css" rel="stylesheet" />
-		<!-- 注册登陆表单样式 -->
-		<link href="css/authmodal.css" rel="stylesheet" />
+		
 
 	</head>
 	<body id="home"><!--属性在styles.css里-->
@@ -398,49 +400,21 @@
 				</i>
 			</div>
 		</footer>
-		<!-- docs/index.html 新增部分 -->
-		<div id="dashboard" style="display:none;">
-			<!-- 动态内容将在此渲染 -->
-		</div>
-		<script type="module" src="js/supabase_auth.js"></script>
-		<!-- 测试表单提交是否会被js劫持，如果发生劫持，启用下面被注释掉的部分 -->
-		<!--<div id="testArea" style="position:fixed; top:20px; right:20px; z-index:9999; background:white; padding:20px; border:2px solid red;">
-			<h3 style="color:red;">测试登录表单元件</h3>
-			<form id="testForm">
-				<input type="text" placeholder="测试账号" id="testUser">
-				<input type="password" placeholder="测试密码" id="testPass">
-				<button type="submit">测试提交</button>
-			</form>
-			<div id="testError" style="color:red; display:none;"></div>
-		</div>
-		<script>
-			document.getElementById('testForm').addEventListener('submit', function(e) {
-  				e.preventDefault();
-
-				const user = document.getElementById('testUser').value.trim();
-				const pass = document.getElementById('testPass').value.trim();
-				const errorBox = document.getElementById('testError');
-  
-				errorBox.style.display = 'none';
-
-				if (!user || !pass) {
-				    errorBox.textContent = '请输入完整信息';
-				    errorBox.style.display = 'block';
-				    return;
-				}
-
-				if (user === 'test' && pass === '1234') {
-				    // 新增跳转逻辑
-				    window.location.href = 'test-success.html'; // 创建一个简单的成功页
-				} else {
-				    errorBox.textContent = '❌ 账号或密码错误';
-				    errorBox.style.color = 'red';
-				    errorBox.style.display = 'block';
-				}
-			});
-		</script>-->
+		
 		<!-- 添加滚动检测脚本 -->
 		<script src="js/loaded.js"></script>
 		<script src="js/dom_log_end.js"></script>
+		<!-- 在body底部 -->
+		<script type="module" src="js/supabase.js"></script>
+		<script type="module" src="js/supabase_auth.js"></script>
+
+		<!-- 动态内容容器 -->
+		<div id="dashboard" style="display:none;">
+		<div class="dashboard-header">
+			<h2 id="dashboardTitle">数据舱加载中...</h2>
+			<button id="logoutBtn">退出</button>
+		</div>
+		<div id="dashboard-content"></div>
+		</div>
 	</body>
 </html>

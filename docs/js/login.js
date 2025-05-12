@@ -18,18 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (error) throw error
 
-      // 2. 获取机构信息
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .select('org_code, access_level')
-        .eq('admin_email', email)
-        .single()
-
-      if (orgError) throw orgError
-
-      // 3. 存储会话
-      localStorage.setItem('supabase_session', JSON.stringify(data.session))
-      location.href = 'dashboard.html'
+      // 2. 触发动态渲染（不再跳转）
+      window.dispatchEvent(new CustomEvent('login-success', {
+        detail: { session: data.session }
+      }))
 
     } catch (error) {
       console.error('登录失败:', error)
