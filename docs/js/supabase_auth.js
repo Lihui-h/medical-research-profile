@@ -28,6 +28,11 @@ window.initAuth = async () => {
       document.body.classList.add('dashboard-active')
       console.log('Body类已添加:', document.body.className) // 调试点3
 
+      // 调试仪表盘容器
+      const dashboard = document.getElementById('dashboard')
+      dashboard.style.display = 'block' // 新增此行
+      console.log('强制显示仪表盘:', dashboard.style.display) // 调试输出
+
       // 关闭模态框（如果存在）
       const authModal = document.getElementById('authModal')
       if (authModal) {
@@ -48,10 +53,7 @@ window.initAuth = async () => {
         initLogoutButton() // 初始化退出按钮
       }
 
-      // 调试仪表盘容器
-      const dashboard = document.getElementById('dashboard')
-      console.log('仪表盘元素:', dashboard) // 调试点5
-      console.log('当前显示状态:', getComputedStyle(dashboard).display) // 调试点6
+      
     }
   } catch (error) {
     handleDashboardError(error)
