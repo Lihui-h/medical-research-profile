@@ -1,4 +1,4 @@
-// signup.js 完整实现
+// docs/js/signup.js
 document.addEventListener('DOMContentLoaded', () => {
     // 注册表单处理
     document.getElementById('signupForm').addEventListener('submit', async (e) => {

@@ -1,4 +1,4 @@
-// login.js 完整实现
+// docs/js/login.js
 import { supabase } from './supabase.js'
 document.addEventListener('DOMContentLoaded', () => {
   // 登录表单处理

@@ -1,3 +1,4 @@
+// docs/js/auth.js
 // 在DOM加载完成后添加以下代码
 document.addEventListener('DOMContentLoaded', () => {
     // 获取模态框元素

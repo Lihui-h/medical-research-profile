@@ -1,4 +1,4 @@
-// supabase_auth.js
+// docs/js/supabase_auth.js
 import { supabase } from './supabase.js'
 
 // 全局状态标识
