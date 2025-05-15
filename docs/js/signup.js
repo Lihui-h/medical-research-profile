@@ -1,4 +1,5 @@
 // docs/js/signup.js
+import { supabase } from './supabase.js'
 document.addEventListener('DOMContentLoaded', () => {
     // 注册表单处理
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
       try {
         // 1. 用户注册
-        const { data, error } = await window.supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error) throw error
   
         // 2. 创建机构记录（需要RLS策略）
-        const { error: dbError } = await window.supabase
+        const { error: dbError } = await supabase
           .from('organizations')
           .insert([{
             id: data.user.id,
