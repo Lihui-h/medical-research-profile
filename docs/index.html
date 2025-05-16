@@ -358,7 +358,7 @@
 						</div>
 						<div class="nav-right">
 							<ul class="nav navbar-nav menu">
-								<li><a id="logoutBtn">退出</a></li>
+								<li><a id="logoutBtn" class="btn">退出</a></li>
 							</ul>
 						</div>
 					</div>
@@ -366,6 +366,18 @@
 				<div class="dashboard-content-container">
 					<div id="dashboard-content">
 						<!-- 基本数据 -->
+						<div class="post-list-wrapper">
+							<div class="post-list-header">
+								<h3>最新评价动态</h3>
+								<div class="source-filter">
+									<select id="sourceSelect">
+										<option value="all">全部来源</option>
+										<option value="baidu_tieba">百度贴吧</option>
+									</select>
+								</div>
+							</div>
+							<div class="post-list scroll-container"></div>
+						</div>
 					</div>
 					<div id="trend-analysis">
 						<h3>趋势分析</h3>

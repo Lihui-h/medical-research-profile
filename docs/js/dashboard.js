@@ -1,66 +1,63 @@
 // docs/js/dashboard.js
 import { supabase } from './supabase.js'
 
-// 导出需要公开的方法
-export async function loadDataMetrics(userId) {
+// 初始化配置
+const POSTS_PER_PAGE = 20
+let currentPage = 1
+
+export async function loadPosts(source = 'all') {
   try {
-    const { data: posts } = await supabase
+    const query = supabase
       .from('posts')
-      .select('id, content, sentiment, created_at')
+      .select('content, sentiment, created_at')
       .order('created_at', { ascending: false })
+      .range((currentPage-1)*POSTS_PER_PAGE, currentPage*POSTS_PER_PAGE-1)
 
-    return {
-      metrics: {
-        totalPosts: posts?.length || 0,
-        positiveRatio: calculatePositiveRatio(posts)
-      },
-      posts: posts || []
-    }
+    if (source !== 'all') query.eq('source', source)
+
+    const { data: posts } = await query
+    return posts || []
   } catch (error) {
-    console.error('数据加载失败:', error);
-    return { metrics: {}, posts: [] };
+    console.error('数据加载失败:', error)
+    return []
   }
 }
 
-// 辅助函数：计算积极评价比例
-function calculatePositiveRatio(posts) {
-  if (!posts?.length) return 0;
-  const positiveCount = posts.filter(p => p.sentiment === 'positive').length;
-  return Math.round((positiveCount / posts.length) * 100);
-}
-
-export function renderDashboard(containerId, data) {
-  const container = document.getElementById(containerId)
+export function renderPosts(posts) {
+  const container = document.querySelector('.post-list')
   
-  // 安全校验
-  if (!container) {
-    console.error('目标容器不存在')
-    return
-  }
+  // 清空原有内容
+  container.innerHTML = posts.map(post => `
+    <div class="post-item ${post.sentiment}">
+      <div class="post-content">${post.content}</div>
+      <div class="post-meta">
+        <span class="sentiment-tag">${
+          post.sentiment === 'positive' ? '👍 积极' : '⚠️ 需改进'
+        }</span>
+        <time>${new Date(post.created_at).toLocaleDateString()}</time>
+      </div>
+    </div>
+  `).join('')
 
-  container.innerHTML = `
-    <div class="metric-grid">
-      <div class="metric-card">
-        <h3>📊 总评价数</h3>
-        <p>${data.metrics.totalPosts}</p>
-      </div>
-      <div class="metric-card">
-        <h3>👍 好评率</h3>
-        <p>${data.metrics.positiveRatio}%</p>
-      </div>
-    </div>
-    <div class="post-list">
-      ${data.posts.map(post => `
-        <div class="post-item">
-          <div class="post-content">${post.content}</div>
-          <div class="post-meta">
-            <span class="sentiment-${post.sentiment}">
-              ${post.sentiment === 'positive' ? '积极' : '需改进'}
-            </span>
-            <span>${new Date(post.created_at).toLocaleDateString()}</span>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  // 滚动到顶部
+  container.scrollTo(0, 0)
+}
+
+// 初始化事件监听
+export function initDashboardControls() {
+  // 来源筛选
+  document.getElementById('sourceSelect').addEventListener('change', async (e) => {
+    const posts = await loadPosts(e.target.value)
+    renderPosts(posts)
+  })
+
+  // 滚动加载
+  document.querySelector('.scroll-container').addEventListener('scroll', async (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target
+    if (scrollHeight - scrollTop <= clientHeight * 1.2) {
+      currentPage++
+      const newPosts = await loadPosts()
+      renderPosts([...document.querySelectorAll('.post-item'), ...newPosts])
+    }
+  })
 }

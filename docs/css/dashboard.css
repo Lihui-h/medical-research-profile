@@ -1,6 +1,6 @@
 /* docs/css/dashboard.css */
 .nav-right {
-  margin-left: auto;
+  right: 0px;
 }
     .metric-grid {
     display: grid;
@@ -62,4 +62,54 @@
   display: block !important; /* 强制覆盖内联样式 */
   opacity: 1;
   z-index: 9999;
+}
+
+/* 核心布局 */
+.dashboard-content-container {
+  height: calc(100vh - 60px); /* 留出导航栏空间 */
+  overflow: hidden;
+}
+
+.post-list-wrapper {
+  height: 100%;
+  padding: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.scroll-container {
+  height: calc(100% - 60px); /* 头部控制栏高度 */
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+/* 帖子项样式 */
+.post-item {
+  background: #fff;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 6px;
+  transition: transform 0.2s;
+}
+
+.post-item:hover {
+  transform: translateX(5px);
+}
+
+/* 情感标签 */
+.sentiment-tag {
+  font-size: 0.9em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.positive .sentiment-tag {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.negative .sentiment-tag {
+  background: #ffebee;
+  color: #c62828;
 }
