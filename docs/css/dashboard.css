@@ -1,14 +1,5 @@
 /* docs/css/dashboard.css */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  
-  .metric-grid {
+    .metric-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
@@ -68,4 +59,33 @@
   display: block !important; /* 强制覆盖内联样式 */
   opacity: 1;
   z-index: 9999;
+}
+
+/* dashboard.css 新增 */
+.hidden {
+  display: none !important;
+}
+
+.source-tags {
+  margin-top: 10px;
+}
+
+.source-tag {
+  display: inline-block;
+  background: #e3f2fd;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  font-size: 0.9em;
+}
+
+.data-container {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+#trend-chart, #wordcloud-canvas {
+  max-width: 800px;
+  margin: 20px auto;
 }
