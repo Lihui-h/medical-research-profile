@@ -60,32 +60,3 @@
   opacity: 1;
   z-index: 9999;
 }
-
-/* dashboard.css 新增 */
-.hidden {
-  display: none !important;
-}
-
-.source-tags {
-  margin-top: 10px;
-}
-
-.source-tag {
-  display: inline-block;
-  background: #e3f2fd;
-  padding: 4px 8px;
-  border-radius: 4px;
-  margin: 2px;
-  font-size: 0.9em;
-}
-
-.data-container {
-  margin-top: 20px;
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
-
-#trend-chart, #wordcloud-canvas {
-  max-width: 800px;
-  margin: 20px auto;
-}
