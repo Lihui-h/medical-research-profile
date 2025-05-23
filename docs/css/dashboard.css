@@ -110,19 +110,26 @@
 }
 
 .basic-post {
-  top: 30%;
-  width: 100%;
-  height: 70%; 
+  height: 50vh; 
   display: block;
+  position: relative;
+  overflow-y: auto;
+  margin-bottom: 40px;
 }
 
 .dashboard-content-container {
-  width: 100%;
-  height: 100%;
   display: block;
+  position: relative;
+  padding-top: 60px; /* 头部高度 */
 }
 
 .header-test {
-  top: 60px; 
-  width: 100%;
+  top: auto; 
+  position: relative;
+  padding: 20px 0;
+}
+
+#trend-analysis, #wordcloud {
+  padding: 20px;
+  margin-top: 40px; /* 确保不被覆盖 */
 }

@@ -1,9 +1,11 @@
 # src/crawlers/social_crawlers/baidu_crawler.py
 import os
+import sys
 import random
 import time
 import csv
 import logging
+import marshal
 from urllib.parse import quote
 from pathlib import Path
 from fake_useragent import UserAgent
@@ -12,7 +14,7 @@ import requests
 import json
 from webdriver_manager.chrome import ChromeDriverManager
 from requests.adapters import HTTPAdapter
-from pymongo import MongoClient, UpdateOne
+from supabase import create_client, Client
 from dotenv import load_dotenv
 from src.utils.api_client import OxylabsScraper  # 新增导入
 from src.utils.keyword_generator import KeywordGenerator  # 新增导入
@@ -24,6 +26,56 @@ logging.basicConfig(
     handlers=[logging.FileHandler("logs/tieba_crawler.log", encoding='utf-8'), logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
+
+class WeightedSentimentAnalyzer:
+    def __init__(self):
+        # 加载词库（可从文件读取）
+        self.negative_weights = {
+            "医疗事故": -5,
+            "治残": -5,
+            "垃圾": -4,
+            "差评": -4,
+            "焦虑": -3,
+            "不明真相": -2,
+            "不专业": -2,
+            "不负责": -2,
+            "生气": -2,
+            "骗": -3,
+            "可耻": -3,
+        }
+        self.positive_weights = {
+            "专业": +3,
+            "负责": +2,
+            "经验丰富": +2,
+            "好医生": +3,
+            "好开心": +3,
+            "有爱心": +2,
+        }
+        
+        self.thresholds = (-3, 3)  # (negative_threshold, positive_threshold)
+
+    def calculate_score(self, text):
+        """加权评分算法"""
+        score = 0
+        # 负面词检测
+        for word, weight in self.negative_weights.items():
+            if word in text:
+                score += weight * text.count(word)  # 按出现次数累加
+        # 正面词检测
+        for word, weight in self.positive_weights.items():
+            if word in text:
+                score += weight * text.count(word)
+        return score
+
+    def analyze(self, text):
+        """情感分类"""
+        score = self.calculate_score(text)
+        if score <= self.thresholds[0]:
+            return ("negative", score)
+        elif score >= self.thresholds[1]:
+            return ("positive", score)
+        else:
+            return ("neutral", score)
 
 class TiebaSpider:
     """百度贴吧爬虫（增强代理稳定性版）"""
@@ -37,58 +89,49 @@ class TiebaSpider:
         self.api_client = OxylabsScraper()
         self.base_url = "https://tieba.baidu.com"
         self.data = []
-        self.fieldnames = [
-            'title',
-            'author',
-            'content',
-            'forum',      # 新增字段
-            'post_time',  # 新增字段
-            'detail_url',
-            'reply_count' # 保留原有字段
-        ]
+        # 初始化情感分析器（替换原snownlp相关代码）
+        self.sentiment_analyzer = WeightedSentimentAnalyzer()
         
-        # MongoDB配置
+        
         load_dotenv()
-        self.client = MongoClient(os.getenv("MONGODB_URI"))
-        self.social_db = self.client[os.getenv("SOCIAL_DB", "social_data")]
-        self.collection = self.social_db[os.getenv("TIEBA_COLLECTION", "tieba_posts")]
+        self.supabase: Client = create_client(
+            os.getenv("SUPABASE_URL"),
+            os.getenv("SUPABASE_KEY") 
+        )
 
     #核心方法
     def run(self):
-        """主运行逻辑（整合搜索URL生成）"""
-        logger.info("🚀 启动贴吧数据采集引擎...")
+        """新版主运行逻辑"""
+        self.logger.info("🚀 启动贴吧数据采集引擎...")
+        search_urls = self.generate_search_urls()
+        
+        total_count = 0
+        for idx, url in enumerate(search_urls, 1):
+            self.logger.info(f"▷ 处理URL [{idx}/{len(search_urls)}]: {url[:60]}...")
 
-        try:
-            search_urls = self.generate_search_urls()  # 调用新增的URL生成方法
+            # 调用API获取数据
+            api_response = self.api_client.fetch_page(url)
+            if not api_response.get("results"):
+                continue
 
-            for idx, url in enumerate(search_urls, 1):
-                self.data = []  # 🔴 新增：清空上一轮数据
-                self.logger.info(f"▷ 正在处理第 {idx}/{len(search_urls)} 个搜索条件 | URL={url[:50]}...")
+            # 解析列表页
+            self.parse_list_page(api_response["results"][0]["content"])
+            if not self.data:
+                self.logger.warning("⚠️ 未获取到任何帖子数据")
+                continue
+            
+            # 立即存储当前批次数据
+            self._save_data()
+            total_count += len(self.data)
+            self.logger.info(f"✅ 已获取 {len(self.data)} 条帖子数据 | 累计: {total_count} 条")
+            self.data.clear()  # 清空当前批次数据
 
-                # 调用API获取页面
-                api_response = self.api_client.fetch_page(url)
+            # 合理的延迟
+            time.sleep(random.uniform(1.5, 3.5))  
 
-                if not api_response.get("results"):
-                    logger.warning(f"❗ 第 {idx} 个搜索条件无结果")
-                    continue
+        # 最终日记
+        self.logger.info(f"🏁 全部采集完成 | 总数据量: {total_count} 条")
 
-                # 解析并存储数据
-                self.parse_list_page(api_response["results"][0]["content"])
-                self.crawl_details()
-
-                # 动态延迟（3-7秒）
-                time.sleep(random.uniform(3, 7))  
-
-            # 存储最终数据
-            if self.data:
-                self._save_data()
-                logger.info(f"✅ 采集完成 | 总计获取 {len(self.data)} 条有效数据")
-
-        except Exception as e:
-            logger.error(f"🔥 主流程异常终止: {str(e)}", exc_info=True)
-
-        finally:
-            self.close()
     
     def _run_static_mode(self):
         """静态解析模式专用流程"""
@@ -124,7 +167,8 @@ class TiebaSpider:
                 
                 # ===== 正文内容 =====
                 content_elem = post.select_one('div.p_content')
-                item['content'] = content_elem.text.strip() if content_elem else "内容解析失败"
+                raw_content = content_elem.text.strip() if content_elem else "内容解析失败"
+                item['content'] = raw_content[:500]  # 限制长度防止超字段限制
 
                 # ===== 贴吧信息 =====
                 forum_elem = post.select_one('a.p_forum font.p_violet')
@@ -136,7 +180,40 @@ class TiebaSpider:
 
                 # ===== 时间信息 =====
                 date_elem = post.select_one('font.p_date')
-                item['post_time'] = date_elem.text.strip() if date_elem else "时间未标注"
+                item['raw_post_time'] = date_elem.text.strip() if date_elem else "时间未标注"
+
+                item.update({
+                    #固定字段
+                    'source': 'baidu_tieba',
+                    'institution_name': '浙江省中医院',
+                    'org_code': 'zjszyy',
+                    'user_id': os.getenv("SUPABASE_USER_UUID")
+                })
+
+                sentiment_result = self.sentiment_analyzer.analyze(raw_content)
+                # 如果返回元组（标签，分数）
+                item['sentiment'] = sentiment_result[0]  # 取情感标签
+                item['sentiment_score'] = sentiment_result[1]  # 取情感分数
+
+                # ==== 新增有效性校验 ====
+                required_keyword = '浙江省中医院'
+                valid_check = [
+                    item.get('detail_url') and item['detail_url'] != "链接无效",  # 检查有效链接
+                    len(item.get('content', '')) > 10,                         # 内容长度限制
+                    required_keyword in item.get('title', '') or required_keyword in item.get('content', '')  # 关键词匹配
+                ]
+                if not all(valid_check):
+                    log_msg = f"跳过无效数据 | 原因："
+                    reasons = []
+                    if not valid_check[0]:
+                        reasons.append("无效链接")
+                    if not valid_check[1]:
+                        reasons.append(f"内容过短（{len(item.get('content',''))}字）") 
+                    if not valid_check[2]:
+                        reasons.append(f"未包含关键词'{required_keyword}'")
+
+                    self.logger.warning(log_msg + "，".join(reasons))
+                    continue
                 
                 # 追加到数据列表
                 self.data.append(item)
@@ -195,89 +272,24 @@ class TiebaSpider:
 
     #存储方法
     def _save_data(self):
-        """统一存储入口（集成医疗内容过滤）"""
-        from src.utils.data_filter import MedicalContentFilter  # 局部导入避免循环依赖
-
+        """直接存储到Supabase"""
         if not self.data:
-            self.logger.warning("⚠️ 暂无数据可存储")
+            self.logger.warning("⚠️ 无有效数据可存储")
             return
         
         try:
-            # === 新增过滤逻辑 ===
-            filter = MedicalContentFilter()
-            filtered_data = [item for item in self.data if filter.is_medical_related(item)]
-
-            if not filtered_data:
-                self.logger.warning("🛑 过滤后无有效医疗数据")
-                return
+            # 批量插入并去重
+            response = self.supabase.table('posts').upsert(
+                self.data,
+                on_conflict='detail_url'
+            ).execute()
             
-            # === 存储过滤后数据 ===
-            mongo_result = self.save_to_mongodb(filtered_data)  # 修改传入参数
-            csv_result = self.save_to_csv(filtered_data)         # 修改传入参数
-
-            # === 更新日志信息 ===
-            if mongo_result and csv_result:
-                self.logger.info(
-                    "💾 存储成功 | 原始数据: %d条 → 有效数据: %d条 (过滤率: %.1f%%)", 
-                    len(self.data), 
-                    len(filtered_data),
-                    (1 - len(filtered_data)/len(self.data)) * 100
-                )
+            if len(response.data) > 0:
+                self.logger.info(f"✅ 成功写入 {len(response.data)} 条数据")
             else:
-                self.logger.warning("⚠️ 存储结果异常 | MongoDB: %s | CSV: %s", mongo_result, csv_result)
-                
+                self.logger.warning("⚠️ 无新数据写入")
         except Exception as e:
-            self.logger.error("💥 存储过程异常: %s", str(e), exc_info=True)
-
-    def save_to_mongodb(self, data):
-        """数据存储（含去重机制）"""
-        if not data:
-            logger.warning("⚠️ 无数据可存储")
-            return False
-            
-        try:
-            # 数据清洗与匿名化
-            processed_data = [self._anonymize_data(item.copy()) for item in data]
-            
-            # 批量写入（自动去重）
-            operations = [
-                UpdateOne(
-                    {"detail_url": item["detail_url"]},
-                    {"$set": item},
-                    upsert=True
-                ) for item in processed_data
-            ]
-            result = self.collection.bulk_write(operations, ordered=False)
-            logger.info(f"📦 数据写入完成 | 新增: {result.upserted_count} 更新: {result.modified_count} 总量: {len(data)}条")
-            return True
-        except Exception as e:
-            logger.error(f"数据存储失败: {str(e)}")
-            return False
-
-    def save_to_csv(self, data):
-        """本地备份（仅保存必要字段）"""
-        save_dir = Path("data/raw/tieba")
-        save_dir.mkdir(parents=True, exist_ok=True)
-        file_path = save_dir / f"{self.keyword}_贴吧数据.csv"
-        
-        try:
-            # 自动获取所有字段（防止遗漏）
-            all_fields = set()
-            for item in data:
-                all_fields.update(item.keys())
-
-            # 写入文件
-            with open(file_path, 'w', newline='', encoding='utf-8-sig') as f:
-                writer = csv.DictWriter(f, fieldnames=list(all_fields))
-                writer.writeheader()
-                writer.writerows(data)
-
-                
-            self.logger.info(f"💾 本地备份成功: {file_path}")
-            return True
-        except Exception as e:
-            self.logger.error(f"CSV保存失败: {str(e)}")
-            return False
+            self.logger.error(f"存储失败: {str(e)}")
 
     #工具方法
     def _anonymize_data(self, item):
@@ -296,9 +308,42 @@ class TiebaSpider:
         return item
 
     def generate_search_urls(self):
-        """生成复合搜索条件URL"""
-        base_url = "https://tieba.baidu.com/f/search/res?ie=utf-8&qw={keyword}"
-        return [base_url.format(keyword=kw) for kw in self.final_keywords]  # 直接使用编码后的关键词
+        """生成带分页的搜索URL"""
+        base_url = "https://tieba.baidu.com/f/search/res"
+        urls = []
+        for keyword in self.keyword_tool.generate():  # 获取原始关键词
+            # 将关键词转为GBK编码
+            try:
+                gbk_bytes = keyword.encode('gbk', errors='strict')
+            except UnicodeEncodeError:
+                self.logger.error(f"关键词'{keyword}'无法用GBK编码，已跳过")
+                continue
+
+            encoded_kw = ''.join([f'%{b:02X}' for b in gbk_bytes])
+
+            params = {
+                "isnew": 1,
+                'kw': "",
+                "qw": encoded_kw,
+                'rn': 10,  # 每页10条结果
+                "un": "",
+                "only_thread": 0,  # 包含主题帖和回复
+                "sm": 1,
+                "sd": "",
+                "ed": ""
+            }
+
+            # 每页10条结果(rn=10)，爬取10页
+            for page in range(0, 10):
+                params["pn"] = page + 1  # 分页从1开始
+                query = '&'.join([f"{k}={v}" for k, v in params.items()])
+                urls.append(f"{base_url}?{query}")
+
+        logger.info(f"Generated {len(urls)} search URLs")
+        return urls
+    
+
+
 
     #资源管理
     def close(self):
