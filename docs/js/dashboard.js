@@ -1,6 +1,7 @@
 // docs/js/dashboard.js
 import { supabase } from './supabase.js';
 import { StabilityAnalyzer } from './stability.js';
+import { renderWordCloud } from './wordcloud.js';
 
 // 导出需要公开的方法
 export async function loadDataMetrics(userId) {
@@ -139,10 +140,10 @@ function calculateWordFrequency(posts) {
     p.content.split(/[\s\n，。；！？]+/).filter(w => w.length > 1)
   );
   
-  return Array.from(
-    words.reduce((map, word) => 
-      map.set(word, (map.get(word) || 0) + 1), 
-    new Map()
-  ).map(([word, count]) => ({ word, count }))
-  )
+  const wordMap = words.reduce((map, word) => {
+    map.set(word, (map.get(word) || 0) + 1);
+    return map;
+  }, new Map());
+
+  return Array.from(wordMap, ([word, count]) => ({ word, count }));
 }
