@@ -1,5 +1,5 @@
 // docs/js/stability.js
-class StabilityAnalyzer {
+export class StabilityAnalyzer {
     constructor() {
       this.params = {
         α: 0.3,  // 中立转积极率
