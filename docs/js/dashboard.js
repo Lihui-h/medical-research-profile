@@ -2,6 +2,7 @@
 import { supabase } from './supabase.js';
 import { StabilityAnalyzer } from './stability.js';
 import { renderWordCloud } from './wordcloud.js';
+import { PhasePortrait } from './phase-portrait.js';
 
 // 导出需要公开的方法
 export async function loadDataMetrics(userId) {
@@ -17,6 +18,12 @@ export async function loadDataMetrics(userId) {
       posts.map(p => p.sentiment_score)
     );
 
+    // 新增：微分方程模拟生成相空间数据
+    const phaseData = simulatePhaseTrajectory(
+      posts.map(p => p.sentiment_score),
+      posts.map(p => p.raw_post_time)
+    );
+
     // 新增词频统计
     const wordCounts = calculateWordFrequency(posts);
 
@@ -27,11 +34,12 @@ export async function loadDataMetrics(userId) {
       },
       posts: posts || [],
       stability: stabilityData,
+      phaseData: phaseData,
       wordCloud: wordCounts
     };
   } catch (error) {
     console.error('数据加载失败:', error);
-    return { metrics: {}, posts: [], stability: [], wordCloud: [] };
+    return { metrics: {}, posts: [], stability: [], phaseData: [], wordCloud: [] };
   }
 }
 
@@ -73,6 +81,10 @@ export function renderDashboard(containerId, data) {
     scores: data.posts.map(p => p.sentiment_score),
     stability: data.stability
   });
+
+  // 初始化相轨迹
+  const portrait = new PhasePortrait('phase-canvas', data.phaseData);
+  portrait.animate();
 
   // 新增词云渲染
   renderWordCloud('wordcloud-canvas', data.wordCloud);
@@ -132,6 +144,28 @@ function renderStabilityChart(containerId, data) {
       }
     }
   });
+}
+
+// 微分方程模拟器
+function simulatePhaseTrajectory(scores, timestamps) {
+  const states = [];
+  let S = 0.5, I = 0.3, N = 0.2; // 初始状态
+  
+  scores.forEach((score, i) => {
+    // 根据实际模型参数计算微分方程
+    const dS = 0.2*N + 0.1*I - 0.15*S;
+    const dI = 0.3*N + 0.25*S - 0.18*I;
+    const dN = 0.15*S + 0.1*I - 0.3*N;
+    
+    // 更新状态
+    S += dS * timeStep(timestamps[i]);
+    I += dI * timeStep(timestamps[i]);
+    N += dN * timeStep(timestamps[i]);
+
+    states.push({ S, I, N, dI });
+  });
+  
+  return states;
 }
 
 // 词频统计函数
