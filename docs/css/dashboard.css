@@ -110,7 +110,7 @@
 }
 
 .basic-post {
-  height: 50vh; 
+  height: 70vh; /* 占据视口70%高度 */
   display: block;
   position: relative;
   overflow-y: auto;

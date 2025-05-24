@@ -1,24 +1,32 @@
 // docs/js/dashboard.js
-import { supabase } from './supabase.js'
+import { supabase } from './supabase.js';
+import { StabilityAnalyzer } from './stability.js';
 
 // 导出需要公开的方法
 export async function loadDataMetrics(userId) {
   try {
     const { data: posts } = await supabase
       .from('posts')
-      .select('id, content, sentiment, created_at')
-      .order('created_at', { ascending: false })
+      .select('id, content, sentiment, sentiment_score, raw_post_time')
+      .order('raw_post_time', { ascending: false })
+    
+    // 新增稳定性计算
+    const stabilityAnalyzer = new StabilityAnalyzer();
+    const stabilityData = stabilityAnalyzer.simulate(
+      posts.map(p => p.sentiment_score)
+    );
 
     return {
       metrics: {
         totalPosts: posts?.length || 0,
         positiveRatio: calculatePositiveRatio(posts)
       },
-      posts: posts || []
-    }
+      posts: posts || [],
+      stability: stabilityData
+    };
   } catch (error) {
     console.error('数据加载失败:', error);
-    return { metrics: {}, posts: [] };
+    return { metrics: {}, posts: [], stability: [] };
   }
 }
 
@@ -53,4 +61,67 @@ export function renderDashboard(containerId, data) {
       `).join('')}
     </div>
   `;
+
+  // 添加稳定性图表
+  renderStabilityChart('trend-chart', {
+    dates: data.posts.map(p => p.created_at),
+    scores: data.posts.map(p => p.sentiment_score),
+    stability: data.stability
+  });
+}
+
+function renderStabilityChart(containerId, data) {
+  const ctx = document.createElement('canvas');
+  document.getElementById(containerId).appendChild(ctx);
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.dates,
+      datasets: [
+        {
+          label: '情感分数',
+          data: data.scores,
+          borderColor: '#4CAF50',
+          tension: 0.4,
+          yAxisID: 'y1'
+        },
+        {
+          label: '稳定性指数',
+          data: data.stability.map(s => s.stability),
+          borderColor: '#FF9800',
+          tension: 0.4,
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y1: {
+          type: 'linear',
+          position: 'left',
+          min: -10,
+          max: 10
+        },
+        y2: {
+          type: 'linear',
+          position: 'right',
+          min: -100,
+          max: 100
+        }
+      },
+      plugins: {
+        annotation: {
+          annotations: {
+            stableBox: {
+              type: 'box',
+              yMin: -3,
+              yMax: 3,
+              backgroundColor: 'rgba(33,150,243,0.1)'
+            }
+          }
+        }
+      }
+    }
+  });
 }
