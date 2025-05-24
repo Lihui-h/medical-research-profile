@@ -16,17 +16,21 @@ export async function loadDataMetrics(userId) {
       posts.map(p => p.sentiment_score)
     );
 
+    // 新增词频统计
+    const wordCounts = calculateWordFrequency(posts);
+
     return {
       metrics: {
         totalPosts: posts?.length || 0,
         positiveRatio: calculatePositiveRatio(posts)
       },
       posts: posts || [],
-      stability: stabilityData
+      stability: stabilityData,
+      wordCloud: wordCounts
     };
   } catch (error) {
     console.error('数据加载失败:', error);
-    return { metrics: {}, posts: [], stability: [] };
+    return { metrics: {}, posts: [], stability: [], wordCloud: [] };
   }
 }
 
@@ -68,6 +72,9 @@ export function renderDashboard(containerId, data) {
     scores: data.posts.map(p => p.sentiment_score),
     stability: data.stability
   });
+
+  // 新增词云渲染
+  renderWordCloud('wordcloud-canvas', data.wordCloud);
 }
 
 function renderStabilityChart(containerId, data) {
@@ -124,4 +131,18 @@ function renderStabilityChart(containerId, data) {
       }
     }
   });
+}
+
+// 词频统计函数
+function calculateWordFrequency(posts) {
+  const words = posts.flatMap(p => 
+    p.content.split(/[\s\n，。；！？]+/).filter(w => w.length > 1)
+  );
+  
+  return Array.from(
+    words.reduce((map, word) => 
+      map.set(word, (map.get(word) || 0) + 1), 
+    new Map()
+  ).map(([word, count]) => ({ word, count }))
+  )
 }
