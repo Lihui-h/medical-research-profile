@@ -24,29 +24,34 @@ export class PhasePortrait {
   
     // 绘制单个帧
     drawFrame() {
-      const currentState = this.data[this.currentFrame];
-      const { x, y } = this.mapToCanvas(currentState.S, currentState.I); // S: 负面人群, I: 积极人群
+        // 添加数据校验
+        if (!this.data[this.currentFrame]) {
+            console.error('无效的数据帧:', this.currentFrame);
+            return;
+        }
+        const currentState = this.data[this.currentFrame];
+        const { x, y } = this.mapToCanvas(currentState.S, currentState.I); // S: 负面人群, I: 积极人群
   
-      // 绘制轨迹线
-      if (this.currentFrame > 0) {
-        const prevState = this.data[this.currentFrame - 1];
-        const prevPos = this.mapToCanvas(prevState.S, prevState.I);
+        // 绘制轨迹线
+        if (this.currentFrame > 0) {
+            const prevState = this.data[this.currentFrame - 1];
+            const prevPos = this.mapToCanvas(prevState.S, prevState.I);
+            this.ctx.beginPath();
+            this.ctx.moveTo(prevPos.x, prevPos.y);
+            this.ctx.lineTo(x, y);
+            this.ctx.strokeStyle = this.getColorByStability(currentState);
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+        }
+  
+        // 绘制当前点
+        this.ctx.fillStyle = '#2196F3';
         this.ctx.beginPath();
-        this.ctx.moveTo(prevPos.x, prevPos.y);
-        this.ctx.lineTo(x, y);
-        this.ctx.strokeStyle = this.getColorByStability(currentState);
-        this.ctx.lineWidth = 2;
-        this.ctx.stroke();
-      }
+        this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+        this.ctx.fill();
   
-      // 绘制当前点
-      this.ctx.fillStyle = '#2196F3';
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, 3, 0, Math.PI * 2);
-      this.ctx.fill();
-  
-      // 更新帧
-      this.currentFrame = (this.currentFrame + 1) % this.data.length;
+        // 更新帧
+        this.currentFrame = (this.currentFrame + 1) % this.data.length;
     }
   
     // 根据稳定性指数生成颜色
