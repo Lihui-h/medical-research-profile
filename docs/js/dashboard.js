@@ -158,15 +158,17 @@ function simulatePhaseTrajectory(scores, timestamps) {
     const curr = new Date(timestamps[index]).getTime();
     return (curr - prev) / (1000 * 3600 * 24); // 转换为天数
   };
+
+  const amplifiedScores = scores.map(s => s * 5); // 放大5倍
   
-  scores.forEach((score, i) => {
+  amplifiedScores.forEach((score, i) => {
     // 计算实际时间步长
     const dt = calculateTimeStep(timestamps, i);
 
     // 根据实际模型参数计算微分方程
-    const dS = 0.2*N + 0.1*I - 0.15*S;
-    const dI = 0.3*N + 0.25*S - 0.18*I;
-    const dN = 0.15*S + 0.1*I - 0.3*N;
+    const dS = 0.2*N + 0.1*I - 0.15*S + 0.05*score;
+    const dI = 0.3*N + 0.25*S - 0.18*I + 0.1*score;
+    const dN = 0.15*S + 0.1*I - 0.3*N + 0.05*score;
     
     // 更新状态
     S += dS * dt;

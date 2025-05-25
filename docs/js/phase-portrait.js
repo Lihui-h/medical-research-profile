@@ -16,10 +16,16 @@ export class PhasePortrait {
   
     // 坐标映射（模型状态 → 画布坐标）
     mapToCanvas(x, y) {
-      return {
-        x: (x + 2) * (this.canvas.width / 4),  // 假设x范围[-2, 2]
-        y: this.canvas.height - (y + 1) * (this.canvas.height / 2) // y范围[-1, 1]
-      };
+        // 动态计算范围（基于实际数据极值）
+        const xMin = Math.min(...this.data.map(d => d.S));
+        const xMax = Math.max(...this.data.map(d => d.S));
+        const yMin = Math.min(...this.data.map(d => d.I));
+        const yMax = Math.max(...this.data.map(d => d.I));
+      
+        return {
+            x: (x - xMin) * (this.canvas.width / (xMax - xMin + 1)),
+            y: this.canvas.height - (y - yMin) * (this.canvas.height / (yMax - yMin + 1)) 
+        };
     }
   
     // 绘制单个帧
@@ -62,11 +68,18 @@ export class PhasePortrait {
   
     // 动画循环
     animate() {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      this.drawFrame();
-      this.animationId = requestAnimationFrame(() => 
-        setTimeout(() => this.animate(), 100 / this.timeScale)
-      );
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawFrame();
+        this.currentFrame++;
+        // 修改动画循环逻辑（完整播放后暂停）
+        if (this.currentFrame >= this.data.length - 1) {
+            cancelAnimationFrame(this.animationId); // 停止动画
+            this.currentFrame = 0; // 重置为初始状态
+            return; // 避免重复调用
+        }
+        this.animationId = requestAnimationFrame(() => 
+            setTimeout(() => this.animate(), 100 / this.timeScale)
+        );
     }
   
     // 事件监听
