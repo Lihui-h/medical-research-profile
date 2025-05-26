@@ -19,10 +19,7 @@ export async function loadDataMetrics(userId) {
     );
 
     // 新增：微分方程模拟生成相空间数据
-    const phaseData = simulatePhaseTrajectory(
-      posts.map(p => p.sentiment_score),
-      posts.map(p => p.raw_post_time)
-    );
+    const phaseData = simulatePhaseTrajectory(posts);
 
     // 新增词频统计
     const wordCounts = calculateWordFrequency(posts);
@@ -146,37 +143,43 @@ function renderStabilityChart(containerId, data) {
   });
 }
 
+const MODEL_PARAMS = {
+  beta_N: 0.02,  // 中立人群被负面影响率
+  beta_I: 0.01,  // 积极人群被负面影响率
+  gamma: 0.05,   // 负面转中立率
+  delta: 0.02,   // 负面直接恢复率
+  alpha: 0.03,   // 中立转积极率
+  rho: 0.01,     // 负面转积极率
+  epsilon: 0.04, // 积极转中立率
+  mu: 0.01       // 积极直接恢复率
+};
+
 // 微分方程模拟器
-function simulatePhaseTrajectory(scores, timestamps) {
+function simulatePhaseTrajectory() {
+  const C = 100; // 总人口基数（假设总帖子数为100）
+  let S = posts.filter(p => p.sentiment === 'negative').length; // 初始负面人数
+  let I = posts.filter(p => p.sentiment === 'positive').length; // 初始积极人数
+  let N = C - S - I; // 初始中立人数
+
   const states = [];
-  let S = 0.5, I = 0.3, N = 0.2; // 初始状态
+  const dt = 1; // 时间步长（天）
 
-  // 定义时间步长计算函数
-  const calculateTimeStep = (timestamps, index) => {
-    if (index === 0) return 1; // 默认初始步长为1天
-    const prev = new Date(timestamps[index-1]).getTime();
-    const curr = new Date(timestamps[index]).getTime();
-    return (curr - prev) / (1000 * 3600 * 24); // 转换为天数
+  // 模拟30天动态（可根据数据量调整）
+  for (let day = 0; day < 30; day++) {
+    // 微分方程计算（简化模型）
+    const dS = MODEL_PARAMS.beta_N * N + MODEL_PARAMS.beta_I * I 
+      - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S;
+    const dI = MODEL_PARAMS.alpha * N + MODEL_PARAMS.rho * S 
+      - (MODEL_PARAMS.epsilon + MODEL_PARAMS.mu) * I;
+    const dN = -dS - dI; // 根据守恒关系 S + I + N = C
+
+    // 更新状态（保证非负）
+    S = Math.max(0, S + dS * dt);
+    I = Math.max(0, I + dI * dt);
+    N = Math.max(0, C - S - I);
+
+    states.push({ S, I });
   };
-
-  const amplifiedScores = scores.map(s => s * 5); // 放大5倍
-  
-  amplifiedScores.forEach((score, i) => {
-    // 计算实际时间步长
-    const dt = calculateTimeStep(timestamps, i);
-
-    // 根据实际模型参数计算微分方程
-    const dS = 0.2*N + 0.1*I - 0.15*S + 0.05*score;
-    const dI = 0.3*N + 0.25*S - 0.18*I + 0.1*score;
-    const dN = 0.15*S + 0.1*I - 0.3*N + 0.05*score;
-    
-    // 更新状态
-    S += dS * dt;
-    I += dI * dt;
-    N += dN * dt;
-
-    states.push({ S, I, N, dI });
-  });
   
   return states;
 }
