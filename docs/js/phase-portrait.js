@@ -27,6 +27,65 @@ export class PhasePortrait {
         y: this.canvas.height - (y - this.yMin) * (this.canvas.height / (this.yMax - this.yMin))
       };
     }
+
+    drawGrid() {
+        // 动态网格绘制
+        this.ctx.strokeStyle = '#eee';
+        this.ctx.setLineDash([2, 3]);
+    
+        // X轴网格
+        for (let x = 0; x <= this.canvas.width; x += this.canvas.width / 10) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, this.canvas.height);
+          this.ctx.stroke();
+        }
+    
+        // Y轴网格
+        for (let y = 0; y <= this.canvas.height; y += this.canvas.height / 10) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(this.canvas.width, y);
+          this.ctx.stroke();
+        }
+        this.ctx.setLineDash([]);
+    }
+
+    drawAxes() {
+        // 坐标轴样式
+        this.ctx.strokeStyle = '#666';
+        this.ctx.lineWidth = 1;
+        this.ctx.font = '12px Arial';
+        this.ctx.fillStyle = '#333';
+
+        // X轴
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.canvas.height);
+        this.ctx.lineTo(this.canvas.width, this.canvas.height);
+        this.ctx.stroke();
+
+        // Y轴
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, 0);
+        this.ctx.lineTo(0, this.canvas.height);
+        this.ctx.stroke();
+
+        // 刻度标签（X轴）
+        const xTicks = 5;
+        for (let i = 0; i <= xTicks; i++) {
+            const xVal = this.xMin + (i / xTicks) * (this.xMax - this.xMin);
+            const xPos = i * (this.canvas.width / xTicks);
+            this.ctx.fillText(xVal.toFixed(1), xPos - 10, this.canvas.height - 5);
+        }
+
+        // 刻度标签（Y轴）
+        const yTicks = 5;
+        for (let i = 0; i <= yTicks; i++) {
+            const yVal = this.yMin + (i / yTicks) * (this.yMax - this.yMin);
+            const yPos = this.canvas.height - i * (this.canvas.height / yTicks);
+            this.ctx.fillText(yVal.toFixed(1), 5, yPos + 5); 
+        }
+    }
   
     // 轨迹颜色渐变（时间维度）
     getTrajectoryColor(frameIndex) {
@@ -37,6 +96,8 @@ export class PhasePortrait {
     // 绘制单帧
     drawFrame() {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawGrid();
+      this.drawAxes();
   
       // 绘制历史轨迹
       for (let i = 1; i <= this.currentFrame; i++) {

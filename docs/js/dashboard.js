@@ -144,13 +144,13 @@ function renderStabilityChart(containerId, data) {
 }
 
 const MODEL_PARAMS = {
-  beta_N: 0.02,  // 中立人群被负面影响率
-  beta_I: 0.01,  // 积极人群被负面影响率
-  gamma: 0.05,   // 负面转中立率
+  beta_N: 0.03,  // 中立人群被负面影响率
+  beta_I: 0.02,  // 积极人群被负面影响率
+  gamma: 0.02,   // 负面转中立率
   delta: 0.02,   // 负面直接恢复率
-  alpha: 0.03,   // 中立转积极率
-  rho: 0.01,     // 负面转积极率
-  epsilon: 0.04, // 积极转中立率
+  alpha: 0.05,   // 中立转积极率
+  rho: 0.03,     // 负面转积极率
+  epsilon: 0.02, // 积极转中立率
   mu: 0.01       // 积极直接恢复率
 };
 
@@ -168,9 +168,11 @@ function simulatePhaseTrajectory(posts) {
   for (let day = 0; day < 30; day++) {
     // 微分方程计算（简化模型）
     const dS = MODEL_PARAMS.beta_N * N + MODEL_PARAMS.beta_I * I 
-      - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S;
+             - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S
+             - 0.001 * S * I; // 非线性耦合项
     const dI = MODEL_PARAMS.alpha * N + MODEL_PARAMS.rho * S 
-      - (MODEL_PARAMS.epsilon + MODEL_PARAMS.mu) * I;
+             - (MODEL_PARAMS.epsilon + MODEL_PARAMS.mu) * I
+             + 0.001 * S * I; // 非线性耦合项
     const dN = -dS - dI; // 根据守恒关系 S + I + N = C
 
     // 更新状态（保证非负）
