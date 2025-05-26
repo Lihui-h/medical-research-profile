@@ -155,7 +155,7 @@ const MODEL_PARAMS = {
 };
 
 // 微分方程模拟器
-function simulatePhaseTrajectory() {
+function simulatePhaseTrajectory(posts) {
   const C = 100; // 总人口基数（假设总帖子数为100）
   let S = posts.filter(p => p.sentiment === 'negative').length; // 初始负面人数
   let I = posts.filter(p => p.sentiment === 'positive').length; // 初始积极人数
