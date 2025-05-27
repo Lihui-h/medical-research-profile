@@ -9,7 +9,7 @@ export async function loadDataMetrics(userId) {
   try {
     const { data: posts } = await supabase
       .from('posts')
-      .select('id, content, sentiment, sentiment_score, raw_post_time')
+      .select('id, content, title, forum, sentiment, sentiment_score, raw_post_time')
       .order('raw_post_time', { ascending: false })
     
     // 新增稳定性计算
@@ -60,12 +60,18 @@ export function renderDashboard(containerId, data) {
     <div class="post-list">
       ${data.posts.map(post => `
         <div class="post-item">
+          <div class="post-header">
+            <h4 class="post-title">${post.title || '无标题'}</h4>
+            <span class="post-forum">来自：${post.forum || '未知贴吧'}</span>
+          </div>
           <div class="post-content">${post.content}</div>
           <div class="post-meta">
-            <span class="sentiment-${post.sentiment}">
-              ${post.sentiment === 'positive' ? '积极' : '需改进'}
+            <span class="sentiment-tag ${post.sentiment}">
+              ${getSentimentLabel(post.sentiment)}
             </span>
-            <span>${new Date(post.created_at).toLocaleDateString()}</span>
+            <span class="post-time">
+              ${new Date(post.raw_post_time).toLocaleDateString()}
+            </span>
           </div>
         </div>
       `).join('')}
@@ -74,7 +80,7 @@ export function renderDashboard(containerId, data) {
 
   // 添加稳定性图表
   renderStabilityChart('trend-chart', {
-    dates: data.posts.map(p => p.created_at),
+    dates: data.posts.map(p => p.raw_post_time),
     scores: data.posts.map(p => p.sentiment_score),
     stability: data.stability
   });
@@ -85,6 +91,15 @@ export function renderDashboard(containerId, data) {
 
   // 新增词云渲染
   renderWordCloud('wordcloud-canvas', data.wordCloud);
+}
+
+// 情感标签文字映射
+function getSentimentLabel(sentiment) {
+  return {
+    positive: '👍 积极',
+    neutral: '🔍 中立',
+    negative: '⚠️ 负面'
+  }[sentiment] || '❓ 未知';
 }
 
 function renderStabilityChart(containerId, data) {
@@ -164,8 +179,8 @@ function simulatePhaseTrajectory(posts) {
   const states = [];
   const dt = 1; // 时间步长（天）
 
-  // 模拟30天动态（可根据数据量调整）
-  for (let day = 0; day < 30; day++) {
+  // 模拟40天动态（可根据数据量调整）
+  for (let day = 0; day < 40; day++) {
     // 微分方程计算（简化模型）
     const dS = MODEL_PARAMS.beta_N * N + MODEL_PARAMS.beta_I * I 
              - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S

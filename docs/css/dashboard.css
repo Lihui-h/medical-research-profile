@@ -22,15 +22,47 @@
     border-radius: 8px;
   }
   
-  .post-item {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-  }
+.post-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background: white;
+  transition: transform 0.2s;
+}
   
-  .post-item:hover {
-    background: #f8f9fa;
-  }
-  
+.post-item:hover {
+  background: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.post-title {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+}
+
+.post-forum {
+  font-size: 12px;
+  color: #666;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.post-time {
+  font-size: 12px;
+  color: #999;
+  margin-left: 10px;
+}
+ 
   .sentiment-positive { color: #4CAF50; }
   .sentiment-negative { color: #f44336; }
   .sentiment-neutral { color: #9E9E9E; }
@@ -79,34 +111,29 @@
   margin-top: 20px;
 }
 
-/* 帖子项样式 */
-.post-item {
-  background: #fff;
-  margin-bottom: 15px;
-  padding: 15px;
-  border-radius: 6px;
-  transition: transform 0.2s;
-}
 
-.post-item:hover {
-  transform: translateX(5px);
-}
 
 /* 情感标签 */
 .sentiment-tag {
-  font-size: 0.9em;
-  padding: 2px 8px;
+  font-size: 12px;
+  padding: 4px 8px;
   border-radius: 4px;
+  display: inline-block;
 }
 
-.positive .sentiment-tag {
+.sentiment-tag.positive {
   background: #e8f5e9;
   color: #2e7d32;
 }
 
-.negative .sentiment-tag {
+.sentiment-tag.neutral {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.sentiment-tag.negative {
   background: #ffebee;
-  color: #c62828;
+  color: #c62828; 
 }
 
 .basic-post {
