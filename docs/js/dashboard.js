@@ -96,10 +96,10 @@ export function renderDashboard(containerId, data) {
 // 情感标签文字映射
 function getSentimentLabel(sentiment) {
   return {
-    positive: '👍 积极',
-    neutral: '🔍 中立',
-    negative: '⚠️ 负面'
-  }[sentiment] || '❓ 未知';
+    positive: '积极',
+    neutral: '中立',
+    negative: '负面'
+  }[sentiment] || '未知';
 }
 
 function renderStabilityChart(containerId, data) {
@@ -179,8 +179,8 @@ function simulatePhaseTrajectory(posts) {
   const states = [];
   const dt = 1; // 时间步长（天）
 
-  // 模拟40天动态（可根据数据量调整）
-  for (let day = 0; day < 40; day++) {
+  // 模拟60天动态（可根据数据量调整）
+  for (let day = 0; day < 60; day++) {
     // 微分方程计算（简化模型）
     const dS = MODEL_PARAMS.beta_N * N + MODEL_PARAMS.beta_I * I 
              - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S

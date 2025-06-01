@@ -1,4 +1,4 @@
-# src/crawlers/social_crawlers/baidu_crawler.py
+# src/crawlers/social_crawlers/zjszyy/baidu_crawler.py
 import os
 import sys
 import random
@@ -17,7 +17,7 @@ from requests.adapters import HTTPAdapter
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from src.utils.api_client import OxylabsScraper  # 新增导入
-from src.utils.keyword_generator import KeywordGenerator  # 新增导入
+from src.crawlers.social_crawlers.zjszyy.keyword_generator import KeywordGenerator  # 新增导入
 
 # 配置日志格式
 logging.basicConfig(
@@ -187,7 +187,7 @@ class TiebaSpider:
                     'source': 'baidu_tieba',
                     'institution_name': '浙江省中医院',
                     'org_code': 'zjszyy',
-                    'user_id': os.getenv("SUPABASE_USER_UUID")
+                    'user_id': os.getenv("SUPABASE_USER_UUID_ZJSZYY"),  # 替换为实际的用户ID
                 })
 
                 sentiment_result = self.sentiment_analyzer.analyze(raw_content)
