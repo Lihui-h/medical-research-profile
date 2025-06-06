@@ -16,7 +16,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from requests.adapters import HTTPAdapter
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from src.utils.api_client import OxylabsScraper  # 新增导入
 from src.crawlers.social_crawlers.zjszyy.keyword_generator import KeywordGenerator  # 新增导入
 
 # 配置日志格式
@@ -86,7 +85,6 @@ class TiebaSpider:
         self.final_keywords = self.keyword_tool.get_encoded_keywords()  # 获取编码后的关键词
         self.logger = logging.getLogger(self.__class__.__name__)
         self.keyword = kw
-        self.api_client = OxylabsScraper()
         self.base_url = "https://tieba.baidu.com"
         self.data = []
         # 初始化情感分析器（替换原snownlp相关代码）
