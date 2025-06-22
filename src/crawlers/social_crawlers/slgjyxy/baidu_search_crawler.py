@@ -43,11 +43,15 @@ class WeightedSentimentAnalyzer:
             "不负责": -2,
             "生气": -2,
             "骗": -3,
+            "论文抄袭": -3,
+            "造假": -3,
             "渣男": -3,
             "避雷": -2,
+            "自卑": -2,
             "可耻": -3,
             "误导": -2,
             "不好的回忆": -2,
+            "心生怨愤": -3,
             "nnd": -2,
             "**": -2,
         }
@@ -56,6 +60,8 @@ class WeightedSentimentAnalyzer:
             "经验丰富": +2,
             "好开心": +3,
             "有爱心": +2,
+            "哈哈哈": +3,
+            "啦啦啦": +2,
         }
         
         self.thresholds = (-3, 3)  # (negative_threshold, positive_threshold)
