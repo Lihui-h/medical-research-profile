@@ -187,7 +187,7 @@ function simulatePhaseTrajectory(posts) {
              - 0.001 * S * I; // 非线性耦合项
     const dI = MODEL_PARAMS.alpha * N + MODEL_PARAMS.rho * S 
              - (MODEL_PARAMS.epsilon + MODEL_PARAMS.mu) * I
-             + 0.01 * S * I; // 非线性耦合项
+             + 0.001 * S * I; // 非线性耦合项
     const dN = -dS - dI; // 根据守恒关系 S + I + N = C
 
     // 更新状态（保证非负）
