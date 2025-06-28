@@ -159,14 +159,18 @@ function renderStabilityChart(containerId, data) {
 }
 
 const MODEL_PARAMS = {
-  beta_N: 0.03,  // 中立人群被负面影响率
-  beta_I: 0.02,  // 积极人群被负面影响率
+  beta_N: 0.12,  // 中立人群被负面影响率
+  beta_I: 0.05,  // 积极人群被负面影响率
   gamma: 0.02,   // 负面转中立率
-  delta: 0.02,   // 负面直接恢复率
-  alpha: 0.05,   // 中立转积极率
+  delta: 0.01,   // 负面直接恢复率
+  alpha: 0.11,   // 中立转积极率
   rho: 0.03,     // 负面转积极率
   epsilon: 0.02, // 积极转中立率
-  mu: 0.01       // 积极直接恢复率
+  mu: 0.01,      // 积极直接恢复率
+
+  // 增强非线性效应
+  nonlinear_SI: 0.05,  // S-I相互作用系数
+  nonlinear_IN: 0.03   // I-N相互作用系数
 };
 
 // 微分方程模拟器
@@ -181,14 +185,19 @@ function simulatePhaseTrajectory(posts) {
 
   // 模拟60天动态（可根据数据量调整）
   for (let day = 0; day < 180; day++) {
+    // 改进的非线性项 - 更符合传播机制
+    const interaction_SI = MODEL_PARAMS.nonlinear_SI * S * I / C;
+    const interaction_IN = MODEL_PARAMS.nonlinear_IN * I * N / C;
     // 微分方程计算（简化模型）
     const dS = MODEL_PARAMS.beta_N * N + MODEL_PARAMS.beta_I * I 
              - (MODEL_PARAMS.gamma + MODEL_PARAMS.delta) * S
-             - 0.001 * S * I; // 非线性耦合项
+             - interaction_SI;  // 负面-积极人群相互作用
     const dI = MODEL_PARAMS.alpha * N + MODEL_PARAMS.rho * S 
              - (MODEL_PARAMS.epsilon + MODEL_PARAMS.mu) * I
-             + 0.001 * S * I; // 非线性耦合项
-    const dN = -dS - dI; // 根据守恒关系 S + I + N = C
+             + interaction_SI   // 获得来自S-I作用的增量
+             - interaction_IN;  // 积极-中立人群相互作用
+
+    const dN = -dS - dI + interaction_IN; // 守恒关系调整
 
     // 更新状态（保证非负）
     S = Math.max(0, S + dS * dt);
