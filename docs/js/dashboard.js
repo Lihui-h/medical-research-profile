@@ -88,48 +88,80 @@ export function renderDashboard(containerId, data) {
   // 添加相图说明
   const phaseContainer = document.getElementById('phase-portrait');
   if (phaseContainer) {
-    phaseContainer.insertAdjacentHTML('beforebegin', `
-      <div id="phase-explanation" style="
-        margin: 20px 0; 
-        background: rgba(33,150,243,0.05); 
-        padding: 15px; 
-        border-radius: 8px;
-        border-left: 4px solid #2196F3;
-      ">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="#2196F3">
-            <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M13,17h-2v-2h2V17z M13,13h-2V7h2V13z"/>
-          </svg>
-          <h4 style="margin:0">情感传播动力学解读</h4>
-        </div>
-        <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 15px; font-size: 14px;">
-          <div style="display:flex;align-items:center;gap:6px">
-            <div style="width:12px;height:12px;border-radius:50%;background:#2196F3"></div>
-            <span>运动轨迹：</span>
-          </div>
-          <span>舆情状态在负面-积极维度的演化路径</span>
-          
-          <div style="display:flex;align-items:center;gap:6px">
-            <div style="width:12px;height:12px;border-radius:50%;background:#F44336"></div>
-            <span>吸引子：</span>
-          </div>
-          <span>系统最终趋向的稳定状态</span>
-          
-          <div style="display:flex;align-items:center;gap:6px">
-            <div style="width:12px;height:12px;background:none;position:relative">
-              <div style="width:100%;height:2px;background:#4CAF50;position:absolute;top:5px"></div>
-            </div>
-            <span>收敛速度：</span>
-          </div>
-          <span>轨迹到达稳定的速度反映系统韧性</span>
-        </div>
-      </div>
-    `);
-  }
+    // 移除旧说明（如果存在）
+    const oldExplanation = document.getElementById('phase-explanation');
+    if (oldExplanation) oldExplanation.remove();
 
-  // 初始化相轨迹
-  const portrait = new PhasePortrait('phase-canvas', data.phaseData);
-  portrait.animate();
+    // 创建新的网格布局容器
+    const gridContainer = document.createElement('div');
+    gridContainer.style.display = 'grid';
+    gridContainer.style.gridTemplateColumns = 'minmax(300px, 1fr) 2fr';
+    gridContainer.style.gap = '20px';
+    gridContainer.style.margin = '20px 0';
+    
+    // 左侧：说明面板
+    const explanationDiv = document.createElement('div');
+    explanationDiv.id = 'phase-explanation';
+    explanationDiv.style.background = 'rgba(33,150,243,0.05)';
+    explanationDiv.style.padding = '15px';
+    explanationDiv.style.borderRadius = '8px';
+    explanationDiv.style.borderLeft = '4px solid #2196F3';
+    explanationDiv.innerHTML = `
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#2196F3">
+          <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M13,17h-2v-2h2V17z M13,13h-2V7h2V13z"/>
+        </svg>
+        <h4 style="margin:0">情感传播动力学解读</h4>
+      </div>
+      <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 15px; font-size: 14px;">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:12px;height:12px;border-radius:50%;background:#2196F3"></div>
+          <span>运动轨迹：</span>
+        </div>
+        <span>舆情状态在负面-积极维度的演化路径</span>
+        
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:12px;height:12px;border-radius:50%;background:#F44336"></div>
+          <span>吸引子：</span>
+        </div>
+        <span>系统最终趋向的稳定状态</span>
+        
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:12px;height:12px;background:none;position:relative">
+            <div style="width:100%;height:2px;background:#4CAF50;position:absolute;top:5px"></div>
+          </div>
+          <span>收敛速度：</span>
+        </div>
+        <span>轨迹到达稳定的速度反映系统韧性</span>
+      </div>
+    `;
+    
+    // 右侧：相图和控制面板
+    const graphContainer = document.createElement('div');
+    graphContainer.innerHTML = `
+      <canvas id="phase-canvas"></canvas>
+      <div class="control-panel" style="margin-top: 10px; text-align: center;">
+        <button id="restartAnimation" class="btn btn-primary">重新播放</button>
+      </div>
+    `;
+    
+    // 组装网格布局
+    gridContainer.appendChild(explanationDiv);
+    gridContainer.appendChild(graphContainer);
+    
+    // 替换原始相图容器
+    phaseContainer.replaceWith(gridContainer);
+    
+    // 初始化相轨迹
+    const portrait = new PhasePortrait('phase-canvas', data.phaseData);
+    portrait.animate();
+    
+    // 绑定重新播放事件
+    document.getElementById('restartAnimation').addEventListener('click', () => {
+      portrait.currentFrame = 0;
+      portrait.animate();
+    });
+  }
 
   // 新增词云渲染
   renderWordCloud('wordcloud-canvas', data.wordCloud);
