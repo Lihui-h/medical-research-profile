@@ -2,22 +2,26 @@
 export class PhasePortrait {
     constructor(canvasId, data) {
       this.canvas = document.getElementById(canvasId);
+      if (!this.canvas) {
+        console.error(`Canvas element with ID '${canvasId}' not found`);
+        return;
+      }
       this.ctx = this.canvas.getContext('2d');
       this.data = data; // 格式：[{ S: 6, I: 4 }, { S: 5, I: 3 }, ...]
       this.animationId = null;
       this.currentFrame = 0;
       this.timeScale = 1;
+      this.restartButton = null;
   
       // 初始化画布
       this.canvas.width = 600;
       this.canvas.height = 400;
-      this.setupEventListeners();
   
       // 动态计算坐标范围（基于数据极值）
-      this.xMin = Math.min(...this.data.map(d => d.S)) * 0.9;
-      this.xMax = Math.max(...this.data.map(d => d.S)) * 1.1;
-      this.yMin = Math.min(...this.data.map(d => d.I)) * 0.9;
-      this.yMax = Math.max(...this.data.map(d => d.I)) * 1.1;
+      this.xMin = Math.min(0, ...this.data.map(d => d.S));
+      this.xMax = Math.max(100, ...this.data.map(d => d.S));
+      this.yMin = Math.min(0, ...this.data.map(d => d.I));
+      this.yMax = Math.max(100, ...this.data.map(d => d.I));
     }
   
     // 坐标映射（动态范围）
@@ -145,15 +149,17 @@ export class PhasePortrait {
       );
     }
   
-    // 事件监听
-    setupEventListeners() {
-      document.getElementById('restartAnimation').addEventListener('click', () => {
-        this.currentFrame = 0;
-        this.animate();
-      });
-  
-      document.getElementById('timeScale').addEventListener('input', (e) => {
-        this.timeScale = parseFloat(e.target.value);
-      });
+  // 添加新方法用于绑定重启按钮
+  bindRestartButton(buttonElement) {
+    if (!buttonElement) {
+      console.warn("无效的重启按钮元素");
+      return;
     }
+    
+    this.restartButton = buttonElement;
+    this.restartButton.addEventListener('click', () => {
+      this.currentFrame = 0;
+      this.animate();
+    });
   }
+}

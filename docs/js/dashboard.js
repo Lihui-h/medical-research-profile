@@ -154,13 +154,15 @@ export function renderDashboard(containerId, data) {
     
     // 初始化相轨迹
     const portrait = new PhasePortrait('phase-canvas', data.phaseData);
-    portrait.animate();
-    
-    // 绑定重新播放事件
-    document.getElementById('restartAnimation').addEventListener('click', () => {
-      portrait.currentFrame = 0;
+    if (!portrait.canvas) {
       portrait.animate();
-    });
+    
+      // 绑定重新播放事件
+      const restartButton = document.getElementById('restartAnimation');
+      if (restartButton) {
+        restartButton.addEventListener('click', () => portrait.restartAnimation());
+      }
+    }
   }
 
   // 新增词云渲染
