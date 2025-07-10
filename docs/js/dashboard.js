@@ -85,12 +85,11 @@ export function renderDashboard(containerId, data) {
     stability: data.stability
   });
 
-  // 添加相图说明
+  // 添加相图说明和画布
   const phaseContainer = document.getElementById('phase-portrait');
   if (phaseContainer) {
-    // 移除旧说明（如果存在）
-    const oldExplanation = document.getElementById('phase-explanation');
-    if (oldExplanation) oldExplanation.remove();
+    // 确保清空容器
+    phaseContainer.innerHTML = '';
 
     // 创建新的网格布局容器
     const gridContainer = document.createElement('div');
@@ -148,21 +147,25 @@ export function renderDashboard(containerId, data) {
     // 组装网格布局
     gridContainer.appendChild(explanationDiv);
     gridContainer.appendChild(graphContainer);
+    phaseContainer.appendChild(gridContainer);
     
-    // 替换原始相图容器
-    phaseContainer.replaceWith(gridContainer);
+    // 初始化相轨迹 确保在DOM添加后执行
+    setTimeout(() => {
+      const portrait = new PhasePortrait('phase-canvas', data.phaseData);
+
+      // 只在画布存在时启动动画
+      if (portrait.canvas) {
+        portrait.animate();
     
-    // 初始化相轨迹
-    const portrait = new PhasePortrait('phase-canvas', data.phaseData);
-    if (!portrait.canvas) {
-      portrait.animate();
-    
-      // 绑定重新播放事件
-      const restartButton = document.getElementById('restartAnimation');
-      if (restartButton) {
-        restartButton.addEventListener('click', () => portrait.restartAnimation());
+        // 绑定重新播放事件
+        const restartButton = document.getElementById('restartAnimation');
+        if (restartButton) {
+          restartButton.addEventListener('click', () => {
+            portrait.restartAnimation();
+          });
+        }
       }
-    }
+    }, 100); // 延迟100ms确保DOM完全渲染
   }
 
   // 新增词云渲染

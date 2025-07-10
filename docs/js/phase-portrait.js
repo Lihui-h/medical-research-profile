@@ -11,17 +11,16 @@ export class PhasePortrait {
       this.animationId = null;
       this.currentFrame = 0;
       this.timeScale = 1;
-      this.restartButton = null;
   
       // 初始化画布
       this.canvas.width = 600;
       this.canvas.height = 400;
   
       // 动态计算坐标范围（基于数据极值）
-      this.xMin = Math.min(0, ...this.data.map(d => d.S));
-      this.xMax = Math.max(100, ...this.data.map(d => d.S));
-      this.yMin = Math.min(0, ...this.data.map(d => d.I));
-      this.yMax = Math.max(100, ...this.data.map(d => d.I));
+      this.xMin = Math.min(...this.data.map(d => d.S)) * 0.9;
+      this.xMax = Math.max(...this.data.map(d => d.S)) * 1.1;
+      this.yMin = Math.min(...this.data.map(d => d.I)) * 0.9;
+      this.yMax = Math.max(...this.data.map(d => d.I)) * 1.1;
     }
   
     // 坐标映射（动态范围）
@@ -134,21 +133,6 @@ export class PhasePortrait {
       this.ctx.fill();
     }
   
-    // 动画循环
-    animate() {
-      if (this.currentFrame >= this.data.length - 1) {
-        cancelAnimationFrame(this.animationId);
-        return;
-      }
-  
-      this.drawFrame();
-      this.currentFrame++;
-  
-      this.animationId = requestAnimationFrame(() => 
-        setTimeout(() => this.animate(), 100 / this.timeScale)
-      );
-    }
-  
   // 添加新方法用于绑定重启按钮
   bindRestartButton(buttonElement) {
     if (!buttonElement) {
@@ -160,6 +144,34 @@ export class PhasePortrait {
     this.restartButton.addEventListener('click', () => {
       this.currentFrame = 0;
       this.animate();
+    });
+  }
+
+  restartAnimation() {
+    // 停止当前动画
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+    
+    // 重置到第一帧
+    this.currentFrame = 0;
+    
+    // 重新开始动画
+    this.animate();
+  }
+  
+  animate() {
+    if (this.currentFrame >= this.data.length - 1) {
+      cancelAnimationFrame(this.animationId);
+      return;
+    }
+    
+    this.drawFrame();
+    this.currentFrame++;
+    
+    this.animationId = requestAnimationFrame(() => {
+      setTimeout(() => this.animate(), 100 / this.timeScale);
     });
   }
 }
