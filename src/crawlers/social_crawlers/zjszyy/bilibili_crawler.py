@@ -1,240 +1,211 @@
-#src/crawlers/social_crawlers/zjszyy/bilibili_crawler.py
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 bilibili_crawler.py - 采集B站视频评论，支持用户互动网络分析
-Modified: 增加 author_mid, target_mid, reply_to_rpid 字段
+适配 bilibili-api-python >= 17.x，使用 offset 游标分页
 """
 
 import os
-import time
-import random
-import requests
+import sys
+import asyncio
+import re
 import pandas as pd
+from datetime import datetime
 from dotenv import load_dotenv
 from supabase import create_client, Client
-from src.crawlers.social_crawlers.zjszyy.keyword_generator import KeywordGenerator
+
+# 导入 bilibili-api 核心模块
+from bilibili_api import sync, Credential
+from bilibili_api import search, video, comment
 
 load_dotenv()
 
-# ==================== 配置 ====================
-keyword_tool = KeywordGenerator()
-KEYWORDS = keyword_tool.generate() + ["浙江省中医院", "省中医院", "浙江中医院"]
+# ---------- 1. 全局认证设置 ----------
+credential = Credential(
+    sessdata=os.getenv("BILIBILI_SESSDATA"),
+    bili_jct=os.getenv("BILIBILI_JCT"),
+    buvid3=os.getenv("BILIBILI_BUVID3")
+)
+# 将 credential 设置为全局默认（官方推荐方式）
+import bilibili_api
+bilibili_api.credential = credential
 
-MAX_VIDEOS_PER_KEYWORD = 10
-MAX_COMMENTS_PER_VIDEO = 50
-DELAY = 10
-REQUEST_TIMEOUT = 15
-
-USE_PROXY = False
-PROXY = None
-
-USER_AGENTS = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0'
-]
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-video_title_cache = {}
-# ==============================================
-
-def get_headers():
-    return {
-        'User-Agent': random.choice(USER_AGENTS),
-        'Referer': 'https://www.bilibili.com',
-        'Accept': 'application/json, text/plain, */*'
-    }
-
-def search_videos(keyword, page=1, retry=3):
-    search_url = "https://api.bilibili.com/x/web-interface/search/type"
-    params = {
-        'search_type': 'video',
-        'keyword': keyword,
-        'page': page,
-        'page_size': 30
-    }
-    for attempt in range(retry):
-        try:
-            resp = requests.get(
-                search_url,
-                headers=get_headers(),
-                params=params,
-                proxies=PROXY,
-                timeout=REQUEST_TIMEOUT
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                if data['code'] == 0:
-                    return data['data']['result']
-                else:
-                    print(f"搜索返回错误码: {data['code']}，等待后重试...")
-            elif resp.status_code == 412:
-                print(f"搜索触发412，第{attempt+1}次重试，等待60秒...")
-                time.sleep(60)
-                continue
-            else:
-                print(f"搜索失败: 状态码 {resp.status_code}")
-        except requests.exceptions.Timeout:
-            print(f"搜索超时，第{attempt+1}次重试...")
-        except Exception as e:
-            print(f"搜索异常: {e}")
-        time.sleep(10)
-    return []
-
-# [MODIFIED] 重写 get_video_comments，增加 mid 和目标字段
-def get_video_comments(bvid, max_count=50):
-    """获取视频评论，返回包含 author_mid, target_mid, reply_to_rpid 的列表"""
-    # 获取视频信息（含作者mid）
-    info_url = "https://api.bilibili.com/x/web-interface/view"
-    params = {'bvid': bvid}
-    try:
-        resp = requests.get(info_url, headers=get_headers(), params=params, proxies=PROXY, timeout=REQUEST_TIMEOUT)
-        if resp.status_code != 200:
-            return []
-        data = resp.json()
-        if data['code'] != 0:
-            return []
-        owner_mid = data['data']['owner']['mid']          # [NEW] 视频作者UID
-        aid = data['data']['aid']
-        title = data['data']['title']
-        video_title_cache[bvid] = title
-    except Exception as e:
-        print(f"获取视频信息失败 (bvid={bvid}): {e}")
-        return []
-
-    comments = []
-    page = 1
-    comment_url = "https://api.bilibili.com/x/v2/reply"
-    while len(comments) < max_count:
-        params = {
-            'type': 1,
-            'oid': aid,
-            'pn': page,
-            'ps': 20,
-            'sort': 2      # 按热度排序
-        }
-        resp = requests.get(comment_url, headers=get_headers(), params=params, proxies=PROXY, timeout=REQUEST_TIMEOUT)
-        if resp.status_code != 200:
-            break
-        data_com = resp.json()
-        if data_com['code'] != 0 or 'data' not in data_com or 'replies' not in data_com['data']:
-            break
-
-        replies = data_com['data']['replies']
-        if not replies:
-            break
-
-        for r in replies:
-            if len(comments) >= max_count:
-                break
-            # [NEW] 一级评论：目标为视频作者
-            comment = {
-                'bvid': bvid,
-                'comment_id': r['rpid'],
-                'author_mid': r['member']['mid'],       # 评论者UID
-                'user_name': r['member']['uname'],
-                'content': r['content']['message'],
-                'time': r['ctime'],
-                'like': r['like'],
-                'target_mid': owner_mid,                # 目标：视频作者
-                'reply_to_rpid': None
-            }
-            comments.append(comment)
-
-            # 二级评论（回复）
-            if r.get('replies'):
-                for sub in r['replies']:
-                    if len(comments) >= max_count:
-                        break
-                    # [NEW] 二级评论：目标为父评论作者
-                    sub_comment = {
-                        'bvid': bvid,
-                        'comment_id': sub['rpid'],
-                        'author_mid': sub['member']['mid'],
-                        'user_name': sub['member']['uname'],
-                        'content': sub['content']['message'],
-                        'time': sub['ctime'],
-                        'like': sub['like'],
-                        'target_mid': r['member']['mid'],  # 目标：父评论作者
-                        'reply_to_rpid': r['rpid']
-                    }
-                    comments.append(sub_comment)
-        page += 1
-        time.sleep(3)
-    return comments
-
-# [MODIFIED] 保存时增加新字段
+# ---------- 2. 数据保存到 Supabase ----------
 def save_to_supabase(comments):
+    """将评论数据批量 upsert 到 posts 表"""
     if not comments:
         return
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    supabase_client: Client = create_client(supabase_url, supabase_key)
+
     records = []
     for c in comments:
-        title = video_title_cache.get(c['bvid'], '')
-        detail_url = f"https://www.bilibili.com/video/{c['bvid']}#reply{c['comment_id']}"
+        raw_time = datetime.fromtimestamp(c['time']).isoformat()
         records.append({
             'content': c['content'],
-            'author': c['user_name'],
-            'author_mid': c['author_mid'],                # [NEW]
-            'target_mid': c['target_mid'],                # [NEW]
-            'reply_to_rpid': c['reply_to_rpid'],          # [NEW]
-            'raw_post_time': pd.to_datetime(c['time'], unit='s').isoformat(),
+            'author': c.get('user_name', '未知用户'),
+            'author_mid': str(c['author_mid']),
+            'target_mid': str(c['target_mid']) if c.get('target_mid') else None,
+            'reply_to_rpid': str(c['reply_to_rpid']) if c.get('reply_to_rpid') else None,
+            'raw_post_time': raw_time,
             'source': 'bilibili',
             'forum': 'B站视频',
-            'title': title,
-            'detail_url': detail_url,
+            'title': c.get('title', ''),
+            'detail_url': c.get('detail_url', ''),
             'institution_name': '浙江省中医院',
             'org_code': 'zjszyy',
             'user_id': os.getenv("SUPABASE_USER_UUID_ZJSZYY"),
             'sentiment': None,
             'sentiment_score': None,
-            'like_count': c['like']
+            'like_count': c.get('like', 0)
         })
 
-    # 按 detail_url 去重
+    # 去重（基于 detail_url + author_mid + reply_to_rpid）
     seen = set()
     unique_records = []
     for rec in records:
-        url = rec['detail_url']
-        if url not in seen:
-            seen.add(url)
+        key = f"{rec['detail_url']}_{rec['author_mid']}_{rec['reply_to_rpid']}"
+        if key not in seen:
+            seen.add(key)
             unique_records.append(rec)
 
+    # 批量插入
     batch_size = 50
     for i in range(0, len(unique_records), batch_size):
         batch = unique_records[i:i+batch_size]
         try:
-            supabase.table('posts').upsert(batch, on_conflict='detail_url').execute()
+            supabase_client.table('posts').upsert(batch, on_conflict='detail_url').execute()
             print(f"✅ 插入 {len(batch)} 条评论")
         except Exception as e:
             print(f"❌ 插入失败: {e}")
 
-def main():
-    print(f"共 {len(KEYWORDS)} 个搜索关键词")
+# ---------- 3. 异步获取单个视频的所有评论（使用 offset 游标分页）----------
+async def fetch_comments_for_bvid(bvid: str, video_title: str, max_comments: int = 50):
+    """使用最新的 offset 游标分页方式获取一个视频的评论和回复"""
+    v_obj = video.Video(bvid=bvid, credential=credential)
+    try:
+        # 获取视频信息（包含 aid 和 UP 主 mid）
+        video_info = await v_obj.get_info()
+        owner_mid = video_info['owner']['mid']
+        aid = video_info['aid']
+
+        all_comments = []
+        offset = ""  # 分页游标，初始为空字符串
+        while len(all_comments) < max_comments:
+            try:
+                # 调用新版接口，使用 offset 进行分页
+                comment_page = await comment.get_comments_lazy(
+                    oid=aid,
+                    type_=comment.CommentResourceType.VIDEO,
+                    offset=offset,
+                    credential=credential
+                )
+            except Exception as e:
+                print(f"    获取评论页失败: {e}")
+                break
+
+            replies = comment_page.get('replies', [])
+            if not replies:
+                break
+
+            # 解析当前页的评论和回复
+            for root_reply in replies:
+                if len(all_comments) >= max_comments:
+                    break
+                # 一级评论（主楼）
+                all_comments.append({
+                    'bvid': bvid,
+                    'comment_id': root_reply['rpid'],
+                    'author_mid': root_reply['mid'],
+                    'user_name': root_reply['member']['uname'],
+                    'content': root_reply['content']['message'],
+                    'time': root_reply['ctime'],
+                    'like': root_reply['like'],
+                    'target_mid': owner_mid,  # 一级评论目标是UP主
+                    'reply_to_rpid': None,
+                    'title': video_title,
+                    'detail_url': f"https://www.bilibili.com/video/{bvid}#reply{root_reply['rpid']}"
+                })
+                # 二级评论（楼中楼回复）
+                if root_reply.get('replies'):
+                    for sub_reply in root_reply['replies']:
+                        if len(all_comments) >= max_comments:
+                            break
+                        all_comments.append({
+                            'bvid': bvid,
+                            'comment_id': sub_reply['rpid'],
+                            'author_mid': sub_reply['mid'],
+                            'user_name': sub_reply['member']['uname'],
+                            'content': sub_reply['content']['message'],
+                            'time': sub_reply['ctime'],
+                            'like': sub_reply['like'],
+                            'target_mid': root_reply['mid'],  # 回复的目标是父评论作者
+                            'reply_to_rpid': root_reply['rpid'],  # 记录父评论ID
+                            'title': video_title,
+                            'detail_url': f"https://www.bilibili.com/video/{bvid}#reply{sub_reply['rpid']}"
+                        })
+
+            # 获取下一页游标
+            cursor = comment_page.get('cursor', {})
+            # 注意：返回的 cursor 中可能包含 'pagination_reply' 字段，其内可能有 'next_offset'
+            pagination_reply = cursor.get('pagination_reply', {})
+            next_offset = pagination_reply.get('next_offset')
+            if not next_offset:
+                break  # 没有下一页了
+            offset = next_offset  # 更新游标
+            await asyncio.sleep(1)  # 礼貌性延迟
+
+        print(f"    视频 {bvid} 共获取 {len(all_comments)} 条评论/回复")
+        return all_comments
+    except Exception as e:
+        print(f"视频 {bvid} 处理出错: {e}")
+        return []
+
+# ---------- 4. 主爬虫流程 ----------
+async def crawl():
+    # 导入关键词生成器（确保路径正确）
+    from src.crawlers.social_crawlers.zjszyy.keyword_generator import KeywordGenerator
+    keyword_tool = KeywordGenerator()
+    KEYWORDS = keyword_tool.generate() + ["浙江省中医院", "省中医院", "浙江中医院"]
+
     for kw in KEYWORDS:
-        print(f"\n🔍 搜索关键词: {kw}")
-        videos = search_videos(kw, page=1)
-        if not videos:
-            print("  没有找到视频")
+        print(f"\n[搜索] 关键词: {kw}")
+        try:
+            # 搜索视频（不需要显式传递 credential，因为已全局设置）
+            search_result = await search.search_by_type(
+                kw,
+                search_type=search.SearchObjectType.VIDEO,
+                page=1
+            )
+        except Exception as e:
+            print(f"[错误] 搜索失败: {e}")
             continue
-        for idx, v in enumerate(videos[:MAX_VIDEOS_PER_KEYWORD]):
-            bvid = v.get('bvid', '')
-            title = v.get('title', '')
-            if bvid and title:
-                video_title_cache[bvid] = title
-            print(f"  📹 视频 {idx+1}: {title} ({bvid})")
+
+        videos = search_result.get('result', [])[:10]   # 每个关键词最多处理10个视频
+        if not videos:
+            print("未找到视频")
+            continue
+
+        for idx, v in enumerate(videos):
+            bvid = v.get('bvid')
+            title = v.get('title', '无标题')
+            # 清理标题中的 HTML 标签
+            title_clean = re.sub(r'<[^>]+>', '', title)
+            print(f"  视频 {idx+1}: {title_clean} ({bvid})")
             if not bvid:
                 continue
-            comments = get_video_comments(bvid, MAX_COMMENTS_PER_VIDEO)
+            comments = await fetch_comments_for_bvid(bvid, title_clean)
             if comments:
                 save_to_supabase(comments)
-            time.sleep(DELAY)
+            await asyncio.sleep(3)   # 视频间延迟
+
+def main():
+    """同步入口"""
+    sync(crawl())
 
 if __name__ == "__main__":
-    # 确保 Supabase 表中已添加以下字段：
+    # 确保 Supabase 的 posts 表已经包含以下字段（如果没有，请先在 SQL 编辑器中执行）：
     # ALTER TABLE posts ADD COLUMN IF NOT EXISTS author_mid text;
     # ALTER TABLE posts ADD COLUMN IF NOT EXISTS target_mid text;
     # ALTER TABLE posts ADD COLUMN IF NOT EXISTS reply_to_rpid text;
